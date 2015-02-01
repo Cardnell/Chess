@@ -49,6 +49,7 @@
     <Compile Include="BishopTests.cs" />
     <Compile Include="BoardTests.cs" />
     <Compile Include="Class1.cs" />
+    <Compile Include="GameTests.cs" />
     <Compile Include="KingTests.cs" />
     <Compile Include="KnightTests.cs" />
     <Compile Include="PawnTests.cs" />

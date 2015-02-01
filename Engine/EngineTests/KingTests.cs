@@ -1,4 +1,5 @@
 ﻿using System;
+using Cardnell.Chess.Engine;
 using NUnit.Framework;
 
 namespace EngineTests
@@ -6,63 +7,135 @@ namespace EngineTests
     [TestFixture]
     class KingTests
     {
+        private Game _game;
+        private Position _initialPosition;
+        private Piece _piece;
+
+
+        private void Init()
+        {
+            _game = new Game(new Board(), new ClassicalRules());
+            _initialPosition = new Position(2,3);
+            _piece = new Piece(PieceColour.White, PieceType.King);
+            _game.Board.AddPiece(_piece, _initialPosition);
+        }
+
         [Test]
         public void CanMoveOneSpaceInAFile()
         {
-            throw new NotImplementedException();
+            Init();
+            var upOne = new Position(_initialPosition.Rank, _initialPosition.File + 1);
+            var downOne = new Position(_initialPosition.Rank, _initialPosition.File - 1);
+
+            Assert.IsTrue(_game.IsMoveLegal(_initialPosition, upOne, _piece.Colour));
+            Assert.IsTrue(_game.IsMoveLegal(_initialPosition, downOne, _piece.Colour));
         }
 
         [Test]
         public void CanMoveOneSpaceInARank()
         {
-            throw new NotImplementedException();
+            Init();
+            var upOne = new Position(_initialPosition.Rank + 1, _initialPosition.File);
+            var downOne = new Position(_initialPosition.Rank - 1, _initialPosition.File);
+
+            Assert.IsTrue(_game.IsMoveLegal(_initialPosition, upOne, _piece.Colour));
+            Assert.IsTrue(_game.IsMoveLegal(_initialPosition, downOne, _piece.Colour));
         }
 
         [Test]
         public void CanMoveOneSpaceDiagnally()
         {
-            throw new NotImplementedException();
+            Init();
+            var upLeft = new Position(_initialPosition.Rank + 1, _initialPosition.File - 1);
+            var upRight = new Position(_initialPosition.Rank + 1, _initialPosition.File + 1);
+            var downLeft = new Position(_initialPosition.Rank - 1, _initialPosition.File - 1);
+            var downRight = new Position(_initialPosition.Rank - 1, _initialPosition.File + 1);
+
+            Assert.IsTrue(_game.IsMoveLegal(_initialPosition, upLeft, _piece.Colour));
+            Assert.IsTrue(_game.IsMoveLegal(_initialPosition, upRight, _piece.Colour));
+            Assert.IsTrue(_game.IsMoveLegal(_initialPosition, downLeft, _piece.Colour));
+            Assert.IsTrue(_game.IsMoveLegal(_initialPosition, downRight, _piece.Colour));
         }
 
         [Test]
         public void CantMoveMoreThanOneSpaceInAFile()
         {
-            throw new NotImplementedException();
+            Init();
+            for (int i = 2; i < 7; i++)
+            {
+                var upSome = new Position(_initialPosition.Rank, _initialPosition.File + i);
+                var downSome = new Position(_initialPosition.Rank, _initialPosition.File - i);
+
+                Assert.IsFalse(_game.IsMoveLegal(_initialPosition, upSome, _piece.Colour));
+                Assert.IsFalse(_game.IsMoveLegal(_initialPosition, downSome, _piece.Colour));
+            }
         }
 
         [Test]
         public void CantMoveMoreThanOneSpaceInARank()
         {
-            throw new NotImplementedException();
+            Init();
+            for (int i = 2; i <7; i++)
+            {
+                var upSome = new Position(_initialPosition.Rank + i, _initialPosition.File);
+                var downSome = new Position(_initialPosition.Rank - i, _initialPosition.File);
+
+                Assert.IsFalse(_game.IsMoveLegal(_initialPosition, upSome, _piece.Colour));
+                Assert.IsFalse(_game.IsMoveLegal(_initialPosition, downSome, _piece.Colour));
+            }
         }
         [Test]
         public void CantMoveMoreThanOneSpaceDiagnally()
         {
-            throw new NotImplementedException();
+            Init();
+            for (int i = 2; i < 7; i++)
+            {
+                var upLeft = new Position(_initialPosition.Rank + i, _initialPosition.File - i);
+                var upRight = new Position(_initialPosition.Rank + i, _initialPosition.File + i);
+                var downLeft = new Position(_initialPosition.Rank -i, _initialPosition.File -i);
+                var downRight = new Position(_initialPosition.Rank - i, _initialPosition.File +i);
+
+                Assert.IsFalse(_game.IsMoveLegal(_initialPosition, upLeft, _piece.Colour));
+                Assert.IsFalse(_game.IsMoveLegal(_initialPosition, upRight, _piece.Colour));
+                Assert.IsFalse(_game.IsMoveLegal(_initialPosition, downLeft, _piece.Colour));
+                Assert.IsFalse(_game.IsMoveLegal(_initialPosition, downRight, _piece.Colour));
+            }
         }
 
         [Test]
         public void CanTakeOtherColour()
         {
-            throw new NotImplementedException();
+            Init();
+            var upOne = new Position(_initialPosition.Rank, _initialPosition.File + 1);
+            var otherPiece = new Piece(PieceColour.Black, PieceType.Knight);
+            _game.Board.AddPiece(otherPiece, upOne);
+
+            Assert.IsTrue(_game.IsMoveLegal(_initialPosition, upOne, _piece.Colour));
         }
 
         [Test]
         public void CantTakeSameColour()
         {
-            throw new NotImplementedException();
+            Init();
+            var upOne = new Position(_initialPosition.Rank, _initialPosition.File + 1);
+            var otherPiece = new Piece(PieceColour.White, PieceType.Knight);
+            _game.Board.AddPiece(otherPiece, upOne);
+
+            Assert.IsFalse(_game.IsMoveLegal(_initialPosition, upOne, _piece.Colour));
         }
 
 
         [Test]
-        private void CantMoveIntoCheck()
+        public void CantMoveIntoCheck()
         {
+            Init();
             throw new NotImplementedException();
         }
 
         [Test]
         public void RandomOtherIlligalMoves()
         {
+            Init();
             throw new NotImplementedException();
         }
 

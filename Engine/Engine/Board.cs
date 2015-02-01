@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Cardnell.Chess.Engine
 {
 
-    public class Board
+    public class Board: IBoard
     {
         private List<Tuple<Position, Piece>> _pieceLocations;
 
@@ -24,7 +25,8 @@ namespace Cardnell.Chess.Engine
 
         public Piece GetPieceAt(Position position)
         {
-            throw new NotImplementedException();
+            //iterates piece lsit twice, not ideal, look to rewrite if performance issue
+            return !IsPieceAt(position) ? null : _pieceLocations.First(t => t.Item1.Equals(position)).Item2;
         }
 
         public bool IsPieceAt(Position position)

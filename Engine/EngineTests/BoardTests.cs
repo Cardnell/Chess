@@ -64,7 +64,46 @@ namespace EngineTests
 
             board.AddPiece(new Piece(PieceColour.White, PieceType.King), position);
 
-            Assert.Throws<ArgumentException>(() => board.AddPiece(new Piece(), position));
+            Assert.Throws<ArgumentException>(() => board.AddPiece(new Piece(PieceColour.White, PieceType.King), position));
+        }
+
+        [Test]
+        public void GetPeiceWhereItExists()
+        {
+            var board = new Board();
+            var position = new Position(1, 2);
+            var piece = new Piece(PieceColour.White, PieceType.King);
+
+            board.AddPiece(piece, position);
+
+            var receivedPiece = board.GetPieceAt(position);
+
+            Assert.AreEqual(piece.Colour, receivedPiece.Colour);
+            Assert.AreEqual(piece.PieceType, receivedPiece.PieceType);
+        }
+
+
+        [Test]
+        public void GetNullWherePieceElsewhere()
+        {
+            var board = new Board();
+            var position = new Position(1, 2);
+            var newPosition = new Position(3, 2);
+            var piece = new Piece(PieceColour.White, PieceType.King);
+
+            board.AddPiece(piece, position);
+
+
+            Assert.IsNull(board.GetPieceAt(newPosition));
+        }
+
+        [Test]
+        public void GetNullWherePieceDoeantExist()
+        {
+            var board = new Board();
+            var position = new Position(1, 2);
+  
+            Assert.IsNull(board.GetPieceAt(position));
         }
     }
 }
