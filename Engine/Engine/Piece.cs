@@ -17,7 +17,22 @@ namespace Cardnell.Chess.Engine
 
     }
 
+    public enum PieceColour
+    {
+        White,
+        Black
+    }
+
     public class Piece
     {
+        public Piece(PieceColour colour, PieceType pieceType)
+        {
+            Colour = colour;
+            PieceType = pieceType;
+        }
+
+        public PieceType PieceType { get; private set; }
+
+        public PieceColour Colour { get; private set; }
     }
 }

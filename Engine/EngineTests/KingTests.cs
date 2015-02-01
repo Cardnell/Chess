@@ -4,54 +4,55 @@ using NUnit.Framework;
 namespace EngineTests
 {
     [TestFixture]
-    class PawnTests
+    class KingTests
     {
         [Test]
-        public void CanMoveOneSpaceForward()
+        public void CanMoveOneSpaceInAFile()
         {
             throw new NotImplementedException();
         }
 
         [Test]
-        public void CanMoveTwoSpacesForwardOnFirstMove()
-        {
-            throw new NotImplementedException();
-        }
-        [Test]
-        public void CantMoveTwoSpacesForwardOnFutureMoves()
+        public void CanMoveOneSpaceInARank()
         {
             throw new NotImplementedException();
         }
 
         [Test]
-        public void CantMoveOneStepFowardAndCapture()
+        public void CanMoveOneSpaceDiagnally()
         {
             throw new NotImplementedException();
         }
 
         [Test]
-        public void CantMoveTwoSpacesForwardAndCapture()
+        public void CantMoveMoreThanOneSpaceInAFile()
         {
             throw new NotImplementedException();
         }
 
         [Test]
-        public void CantMoveDiagnallyWithoutCapture()
+        public void CantMoveMoreThanOneSpaceInARank()
+        {
+            throw new NotImplementedException();
+        }
+        [Test]
+        public void CantMoveMoreThanOneSpaceDiagnally()
         {
             throw new NotImplementedException();
         }
 
         [Test]
-        public void CanMoveDiagnallyOneAndCapture()
+        public void CanTakeOtherColour()
         {
             throw new NotImplementedException();
         }
 
         [Test]
-        public void CantCaptureOwnColour()
+        public void CantTakeSameColour()
         {
             throw new NotImplementedException();
         }
+
 
         [Test]
         private void CantMoveIntoCheck()
@@ -59,15 +60,8 @@ namespace EngineTests
             throw new NotImplementedException();
         }
 
-
         [Test]
         public void RandomOtherIlligalMoves()
-        {
-            throw new NotImplementedException();
-        }
-
-        [Test]
-        public void EnpassantTest()
         {
             throw new NotImplementedException();
         }

@@ -1,57 +1,51 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace EngineTests
 {
     [TestFixture]
-    class PawnTests
+    class BishopTests
     {
         [Test]
-        public void CanMoveOneSpaceForward()
+        public void CanMoveDiagnally()
         {
             throw new NotImplementedException();
         }
 
         [Test]
-        public void CanMoveTwoSpacesForwardOnFirstMove()
-        {
-            throw new NotImplementedException();
-        }
-        [Test]
-        public void CantMoveTwoSpacesForwardOnFutureMoves()
+        public void CantMoveAlongFile()
         {
             throw new NotImplementedException();
         }
 
         [Test]
-        public void CantMoveOneStepFowardAndCapture()
+        public void CantMoveAlongRank()
         {
             throw new NotImplementedException();
         }
 
         [Test]
-        public void CantMoveTwoSpacesForwardAndCapture()
+        public void CantJumpPiece()
         {
             throw new NotImplementedException();
         }
 
         [Test]
-        public void CantMoveDiagnallyWithoutCapture()
+        public void CanTakeOtherColour()
         {
             throw new NotImplementedException();
         }
 
         [Test]
-        public void CanMoveDiagnallyOneAndCapture()
+        public void CantTakeSameColour()
         {
             throw new NotImplementedException();
         }
 
-        [Test]
-        public void CantCaptureOwnColour()
-        {
-            throw new NotImplementedException();
-        }
 
         [Test]
         private void CantMoveIntoCheck()
@@ -62,12 +56,6 @@ namespace EngineTests
 
         [Test]
         public void RandomOtherIlligalMoves()
-        {
-            throw new NotImplementedException();
-        }
-
-        [Test]
-        public void EnpassantTest()
         {
             throw new NotImplementedException();
         }

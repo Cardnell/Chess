@@ -23,7 +23,7 @@ namespace EngineTests
             var position = new Position(3, 5);
             var otherPosition = new Position(5, 3);
 
-            board.AddPiece(new Piece(), position);
+            board.AddPiece(new Piece(PieceColour.White, PieceType.King), position);
 
             Assert.IsFalse(board.IsPieceAt(otherPosition));
             Assert.IsTrue(board.IsPieceAt(position));
@@ -36,7 +36,7 @@ namespace EngineTests
             var position = new Position(3, 5);
             var pieceLocation = new Position(3, 5);
 
-            board.AddPiece(new Piece(), position);
+            board.AddPiece(new Piece(PieceColour.White, PieceType.King), position);
 
             Assert.IsTrue(board.IsPieceAt(pieceLocation));
         }
@@ -49,8 +49,8 @@ namespace EngineTests
             var secondPosition = new Position(2, 2);
             var otherPosition = new Position(5, 3);
 
-            board.AddPiece(new Piece(), position);
-            board.AddPiece(new Piece(), secondPosition);
+            board.AddPiece(new Piece(PieceColour.White, PieceType.King), position);
+            board.AddPiece(new Piece(PieceColour.White, PieceType.King), secondPosition);
             Assert.IsFalse(board.IsPieceAt(otherPosition));
             Assert.IsTrue(board.IsPieceAt(position));
             Assert.IsTrue(board.IsPieceAt(secondPosition));
@@ -62,7 +62,7 @@ namespace EngineTests
             var board = new Board();
             var position = new Position(3, 5);
 
-            board.AddPiece(new Piece(), position);
+            board.AddPiece(new Piece(PieceColour.White, PieceType.King), position);
 
             Assert.Throws<ArgumentException>(() => board.AddPiece(new Piece(), position));
         }
