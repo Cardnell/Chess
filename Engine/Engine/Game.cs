@@ -21,6 +21,14 @@ namespace Cardnell.Chess.Engine
             _moves = new List<Move>();
         }
 
+        public Game(IBoard board, IRulesEngine rulesEngine, List<Tuple<Piece, Position>> pieces )
+        {
+            Board = board;
+            _rulesEngine = rulesEngine;
+            _moves = new List<Move>();
+
+        }
+
         public bool IsMoveLegal(Position initialPosition, Position finalPosition, PieceColour mover)
         {
             Piece piece = Board.GetPieceAt(initialPosition);
