@@ -1,5 +1,6 @@
 ﻿using System;
 using Cardnell.Chess.Engine;
+using Cardnell.Chess.Engine.Rules;
 using NUnit.Framework;
 
 namespace EngineTests
@@ -14,7 +15,7 @@ namespace EngineTests
 
         private void Init()
         {
-            _game = new Game(new Board(), new ClassicalRules());
+            _game = new Game(new Board(), new RefactoredClassicalRules());
             _initialPosition = new Position(2, 3);
             _piece = new Piece(PieceColour.White, PieceType.Rook);
             _game.Board.AddPiece(_piece, _initialPosition);
@@ -116,7 +117,14 @@ namespace EngineTests
         [Test]
         public void CantMoveIntoCheck()
         {
-            throw new NotImplementedException();
+            Init();
+            var KingPosition = new Position(_initialPosition.Rank, _initialPosition.File - 1);
+            var RookPosition = new Position(_initialPosition.Rank, _initialPosition.File + 1);
+            var newPosition = new Position(_initialPosition.Rank + 1, _initialPosition.File );
+            _game.Board.AddPiece(new Piece(_piece.Colour, PieceType.King), KingPosition);
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Rook), RookPosition);
+
+            Assert.IsFalse(_game.IsMoveLegal(_initialPosition, newPosition, _piece.Colour));
         }
 
 

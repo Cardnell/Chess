@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cardnell.Chess.Engine;
+using Cardnell.Chess.Engine.Rules;
 using NUnit.Framework;
 
 namespace EngineTests
@@ -18,7 +19,7 @@ namespace EngineTests
 
         private void Init()
         {
-            _game = new Game(new Board(), new ClassicalRules());
+            _game = new Game(new Board(), new RefactoredClassicalRules());
             _initialPosition = new Position(2, 3);
             _piece = new Piece(PieceColour.White, PieceType.Bishop);
             _game.Board.AddPiece(_piece, _initialPosition);
@@ -31,27 +32,40 @@ namespace EngineTests
             for (int i = 1; i < 7; i++)
             {
                 var upLeft = new Position(_initialPosition.Rank + i, _initialPosition.File - i);
-                if (upLeft.Rank < 8 && upLeft.File > 0)
+                if (upLeft.File > 0 && upLeft.File < 7 && upLeft.Rank > 0 && upLeft.Rank < 7)
                 {
-                    Assert.IsTrue(_game.IsMoveLegal(_initialPosition, upLeft, _piece.Colour));
+                    if (upLeft.Rank < 8 && upLeft.File > 0)
+                    {
+                        Assert.IsTrue(_game.IsMoveLegal(_initialPosition, upLeft, _piece.Colour));
+                    }
                 }
 
+
                 var upRight = new Position(_initialPosition.Rank + i, _initialPosition.File + i);
-                if (upRight.Rank < 8 && upRight.File > 0)
+                if (upRight.File > 0 && upRight.File < 7 && upRight.Rank > 0 && upRight.Rank < 7)
                 {
-                    Assert.IsTrue(_game.IsMoveLegal(_initialPosition, upRight, _piece.Colour));
+                    if (upRight.Rank < 8 && upRight.File > 0)
+                    {
+                        Assert.IsTrue(_game.IsMoveLegal(_initialPosition, upRight, _piece.Colour));
+                    }
                 }
 
                 var downLeft = new Position(_initialPosition.Rank - i, _initialPosition.File - i);
-                if (downLeft.Rank < 8 && downLeft.File > 0)
+                if (downLeft.File > 0 && downLeft.File < 7 && downLeft.Rank > 0 && downLeft.Rank < 7)
                 {
-                    Assert.IsTrue(_game.IsMoveLegal(_initialPosition, downLeft, _piece.Colour));
+                    if (downLeft.Rank < 8 && downLeft.File > 0)
+                    {
+                        Assert.IsTrue(_game.IsMoveLegal(_initialPosition, downLeft, _piece.Colour));
+                    }
                 }
 
                 var downRight = new Position(_initialPosition.Rank - i, _initialPosition.File + i);
-                if (downRight.Rank < 8 && downRight.File > 0)
+                if (downRight.File > 0 && downRight.File < 7 && downRight.Rank > 0 && downRight.Rank < 7)
                 {
-                    Assert.IsTrue(_game.IsMoveLegal(_initialPosition, downRight, _piece.Colour));
+                    if (downRight.Rank < 8 && downRight.File > 0)
+                    {
+                        Assert.IsTrue(_game.IsMoveLegal(_initialPosition, downRight, _piece.Colour));
+                    }
                 }
             }
         }
@@ -122,7 +136,14 @@ namespace EngineTests
         [Test]
         public void CantMoveIntoCheck()
         {
-            throw new NotImplementedException();
+            Init();
+            var KingPosition = new Position(_initialPosition.Rank - 1, _initialPosition.File - 1);
+            var BishopPosition = new Position(_initialPosition.Rank + 1, _initialPosition.File + 1);
+            var newPosition = new Position(_initialPosition.Rank + 1, _initialPosition.File -1);
+            _game.Board.AddPiece(new Piece(_piece.Colour, PieceType.King), KingPosition);
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Bishop), BishopPosition);
+
+            Assert.IsFalse(_game.IsMoveLegal(_initialPosition, newPosition, _piece.Colour));
         }
 
 

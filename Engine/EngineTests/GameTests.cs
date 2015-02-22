@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Cardnell.Chess.Engine;
+using Cardnell.Chess.Engine.Rules;
 using Moq;
 using NUnit.Framework;
 
@@ -51,14 +53,14 @@ namespace EngineTests
             var finalPosition = new Position(3, 4);
             var moverColour = PieceColour.White;
             var piece = new Piece(moverColour, PieceType.King);
-            var move = new Move(initialPosition, finalPosition, moverColour, piece, false);
+            var move = new Move(initialPosition, finalPosition, moverColour, piece, null);
 
 
             boardMock.Setup(x => x.GetPieceAt(initialPosition)).Returns(piece);
 
             Move returnedMove = null;
            // rulesEngineMock.Verify(x => x.IsMoveLegal(It.IsAny<Move>(), It.IsAny<IBoard>()));
-            rulesEngineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), It.IsAny<IBoard>()))
+            rulesEngineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), It.IsAny<IBoard>(), It.IsAny<IList<Move>>()))
                 .Returns(true)
                 .Callback<Move, IBoard>((m, b) => returnedMove =m);
 
@@ -72,7 +74,7 @@ namespace EngineTests
             Assert.AreEqual(move.FinalPosition, returnedMove.FinalPosition);
             Assert.AreEqual(move.Mover, returnedMove.Mover);
             Assert.AreEqual(move.PieceMoved, returnedMove.PieceMoved);
-            Assert.AreEqual(move.TookPeice, returnedMove.TookPeice);
+            Assert.AreEqual(move.PieceTaken, returnedMove.PieceTaken);
 
         }
 

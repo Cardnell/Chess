@@ -50,7 +50,7 @@ namespace EngineTests
             var otherPosition = new Position(5, 3);
 
             board.AddPiece(new Piece(PieceColour.White, PieceType.King), position);
-            board.AddPiece(new Piece(PieceColour.White, PieceType.King), secondPosition);
+            board.AddPiece(new Piece(PieceColour.Black, PieceType.Bishop), secondPosition);
             Assert.IsFalse(board.IsPieceAt(otherPosition));
             Assert.IsTrue(board.IsPieceAt(position));
             Assert.IsTrue(board.IsPieceAt(secondPosition));
