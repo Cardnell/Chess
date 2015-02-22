@@ -1,35 +1,84 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Cardnell.Chess.Engine.Rules;
 
 namespace Cardnell.Chess.Engine
 {
     public class ClassicalRules : IRulesEngine
     {
-        public bool IsMoveLegal(Move move, IBoard board)
+
+        //public bool IsMoveLegal(Move move, IBoard board)
+        //{
+        //    Piece pieceOnFinalSquare = board.GetPieceAt(move.FinalPosition);
+        //    if (pieceOnFinalSquare != null)
+        //    {
+        //        if (pieceOnFinalSquare.Colour == move.Mover)
+        //        {
+        //            return false;
+        //        }
+        //    }
+
+        //    if (! SpecificPieceLegalicy(move, board, pieceOnFinalSquare))
+        //    {
+        //        return false;
+        //    }
+        //    board.MovePiece(move.InitialPosition, move.FinalPosition);
+        //    bool output =  IsInCheck(board, move.PieceMoved.Colour);
+        //    board.MovePiece(move.FinalPosition, move.InitialPosition);
+        //    return output;
+        //}
+
+        //public bool IsInCheck(IBoard board, PieceColour colour)
+        //{
+        //    PieceColour moverColour = colour + 1;
+        //    Piece king = board.GetKing(colour);
+        //    foreach (Piece piece in board.GetPieces(moverColour))
+        //    {
+        //        //blah
+        //    }
+
+        //    return board.GetPieces(colour).Any(t => IsMoveLegal(new Move(t.Position, king.Position, moverColour, t, false), board));
+        //}
+        //private bool SpecificPieceLegalicy(Move move, IBoard board, Piece pieceOnFinalSquare)
+        //{
+        //    switch (move.PieceMoved.PieceType)
+        //    {
+        //        case PieceType.King:
+        //            return IsKingMoveLegal(move);
+        //        case PieceType.Knight:
+        //            return IsKnightMoveLegal(move);
+        //        case PieceType.Rook:
+        //            return IsRookMoveLegal(move, board);
+        //        case PieceType.Bishop:
+        //            return IsBishopMoveLegal(move, board);
+        //        case PieceType.Queen:
+        //            return IsQueenMoveLegal(move, board);
+        //        case PieceType.Pawn:
+        //            return IsPawnMoveLegal(move, board, pieceOnFinalSquare);
+        //        default:
+        //            return false;
+        //    }
+        //}
+
+        private bool IsPawnMoveLegal(Move move, IBoard board, Piece pieceOnFinalSquare)
         {
-            Piece pieceOnFinalSquare = board.GetPieceAt(move.FinalPosition);
-            if (pieceOnFinalSquare != null)
+
+            if (pieceOnFinalSquare == null)
             {
-                if (pieceOnFinalSquare.Colour == move.Mover)
+                if (move.InitialPosition.File != move.FinalPosition.File)
                 {
                     return false;
+                } 
+                if (move.InitialPosition.Rank + 1 == move.FinalPosition.Rank)
+                {
+                    return true;
                 }
+                return (move.InitialPosition.Rank + 2 == move.FinalPosition.Rank)
+                       && board.GetPieceAt(move.InitialPosition).HasMoved == false;
             }
-
-            switch (move.PieceMoved.PieceType)
-            {
-                case PieceType.King:
-                    return IsKingMoveLegal(move);
-                case PieceType.Knight:
-                    return IsKnightMoveLegal(move);
-                case PieceType.Rook:
-                    return IsRookMoveLegal(move, board);
-                case PieceType.Bishop:
-                    return IsBishopMoveLegal(move, board);
-                case PieceType.Queen:
-                    return IsQueenMoveLegal(move, board);
-                default:
-                    return false;
-            }
+            return (Math.Abs(move.InitialPosition.File - move.FinalPosition.File) == 1 &&
+                    (move.InitialPosition.Rank + 1 == move.FinalPosition.Rank));
         }
 
         private bool IsQueenMoveLegal(Move move, IBoard board)
@@ -157,6 +206,16 @@ namespace Cardnell.Chess.Engine
         {
             return Math.Abs(move.InitialPosition.Rank - move.FinalPosition.Rank) <= 1
                    && Math.Abs(move.InitialPosition.File - move.FinalPosition.File) <= 1;
+        }
+
+        public bool IsMoveLegal(Move move, IBoard board)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsMoveLegal(Move move, IBoard board, IList<Move> moves)
+        {
+            throw new NotImplementedException();
         }
     }
 }

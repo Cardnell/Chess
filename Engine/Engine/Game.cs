@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cardnell.Chess.Engine.Rules;
 
 namespace Cardnell.Chess.Engine
 {
@@ -40,7 +41,7 @@ namespace Cardnell.Chess.Engine
             {
                 return false;
             }
-            return _rulesEngine.IsMoveLegal(new Move(initialPosition, finalPosition, mover, piece, false), Board);
+            return _rulesEngine.IsMoveLegal(new Move(initialPosition, finalPosition, mover, piece, null), Board, _moves);
         }
 
         public bool IsMoveLegal(Move move)
@@ -48,5 +49,13 @@ namespace Cardnell.Chess.Engine
             return false;
         }
 
+        public void MakeMove(Position initialPosition, Position finalPosition, PieceColour mover)
+        {
+            if (!IsMoveLegal(initialPosition, finalPosition, mover))
+            {
+                throw new ArgumentException("Move not legal");
+            }
+            Board.MovePiece(new Move(initialPosition, finalPosition, mover, null, null));
+        }
     }
 }

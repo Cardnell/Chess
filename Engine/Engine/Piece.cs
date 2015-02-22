@@ -29,10 +29,14 @@ namespace Cardnell.Chess.Engine
         {
             Colour = colour;
             PieceType = pieceType;
+            HasMoved = false;
+
         }
 
         public PieceType PieceType { get; private set; }
 
         public PieceColour Colour { get; private set; }
+        public bool HasMoved { get; set; }
+        public Position Position { get; set; }
     }
 }
