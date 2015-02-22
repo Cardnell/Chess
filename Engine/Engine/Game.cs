@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Cardnell.Chess.Engine.Rules;
 
 namespace Cardnell.Chess.Engine
 {
     public class Game
     {
-        public IBoard Board { get; private set; }
-        
-        
-        private List<Move> _moves;
+        private readonly List<Move> _moves;
         private readonly IRulesEngine _rulesEngine;
 
         public Game(IBoard board, IRulesEngine rulesEngine)
@@ -22,26 +16,29 @@ namespace Cardnell.Chess.Engine
             _moves = new List<Move>();
         }
 
-        public Game(IBoard board, IRulesEngine rulesEngine, List<Tuple<Piece, Position>> pieces )
+
+        public Game(IBoard board, IRulesEngine rulesEngine, IEnumerable<Tuple<Piece, Position>> pieces)
         {
             Board = board;
             _rulesEngine = rulesEngine;
             _moves = new List<Move>();
-
+            foreach (var piece in pieces)
+            {
+                board.AddPiece(piece.Item1, piece.Item2);
+            }
         }
+
+        public IBoard Board { get; private set; }
 
         public bool IsMoveLegal(Position initialPosition, Position finalPosition, PieceColour mover)
         {
             Piece piece = Board.GetPieceAt(initialPosition);
-            if(piece == null)
+            if (piece == null)
             {
                 return false;
             }
-            if (piece.Colour != mover)
-            {
-                return false;
-            }
-            return _rulesEngine.IsMoveLegal(new Move(initialPosition, finalPosition, mover, piece, null), Board, _moves);
+            return piece.Colour == mover &&
+                   _rulesEngine.IsMoveLegal(new Move(initialPosition, finalPosition, mover, piece, null), Board, _moves);
         }
 
         public bool IsMoveLegal(Move move)

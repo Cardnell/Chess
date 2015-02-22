@@ -64,6 +64,8 @@ namespace Cardnell.Chess.Engine
             return GetPieceAt(position) != null;
         }
 
+
+        //todo Enpassant removal
         public void MovePiece(Move move)
         {
             Piece piece = GetPieceAt(move.InitialPosition);

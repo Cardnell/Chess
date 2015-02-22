@@ -105,5 +105,17 @@ namespace EngineTests
   
             Assert.IsNull(board.GetPieceAt(position));
         }
+
+        [Test]
+        public void TryToAddPieceOutOfRange()
+        {
+            var board = new Board();
+
+
+            Assert.Throws<ArgumentException>(() => board.AddPiece(new Piece(PieceColour.White, PieceType.King),
+                new Position(8, 0)));
+
+
+        }
     }
 }
