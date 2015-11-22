@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Cardnell.Chess.Engine;
 using Cardnell.Chess.Engine.Rules;
 using Moq;
@@ -166,11 +167,7 @@ namespace EngineTests
                 {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position(7, 7)), 1},
             };
 
-            var piecesComparison = new Dictionary<string, int>();
-            foreach (var value in piecesToAdd.Keys)
-            {
-                piecesComparison.Add(GetPiecePoisitionString(value), 1);
-            }
+            var piecesComparison = piecesToAdd.Keys.ToDictionary(GetPiecePoisitionString, value => 1);
 
             var addCalls = new List<Tuple<Piece, Position>>();
             boardMock.Setup(c => c.AddPiece(It.IsAny<Piece>(), It.IsAny<Position>()))
@@ -198,6 +195,30 @@ namespace EngineTests
             var game = new Game(boardMock.Object, rulesEngineMock.Object);
 
             boardMock.Verify(m => m.AddPiece(It.IsAny<Piece>(), It.IsAny<Position>()), Times.Never());
+        }
+
+        [Test]
+        public void MakeMoveAddsToMoveList()
+        {
+            var boardMock = new Mock<IBoard>();
+            var rulesEngineMock = new Mock<IRulesEngine>();
+
+            Move move = new Move(new Position(1,1), new Position(2,2), PieceColour.White, null, null);
+            rulesEngineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), boardMock.Object, It.IsAny<List<Move>>())).Returns(true);
+            Piece piece = new Piece(PieceColour.White, PieceType.Knight);
+            boardMock.Setup(x => x.GetPieceAt(move.InitialPosition)).Returns(piece);
+
+            var game = new Game(boardMock.Object, rulesEngineMock.Object);
+
+            
+            game.MakeMove(move.InitialPosition, move.FinalPosition, PieceColour.White);
+
+            Assert.AreEqual(1, game.Moves.Count);
+            Assert.AreEqual(move.InitialPosition, game.Moves[0].InitialPosition);
+            Assert.AreEqual(move.FinalPosition, game.Moves[0].FinalPosition);
+            Assert.AreEqual(move.Mover, game.Moves[0].Mover);
+            //Assert.AreEqual(piece, game.Moves[0].PieceMoved);
+            rulesEngineMock.VerifyAll();
         }
 
 

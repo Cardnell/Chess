@@ -29,6 +29,10 @@ namespace Cardnell.Chess.Engine.Rules
 
         private bool EnpassantTest(Move move, IBoard board, IList<Move> moves)
         {
+            if (moves.Count == 0)
+            {
+                return false;
+            }
             if (Math.Abs(move.InitialPosition.File - move.FinalPosition.File) != 1)
             {
                 return false;

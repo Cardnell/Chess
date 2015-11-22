@@ -46,7 +46,6 @@
     <Compile Include="Rules\BishopMoveRule.cs" />
     <Compile Include="Rules\CantMoveIntoCheck.cs" />
     <Compile Include="Rules\CantTakeOwnPieceRule.cs" />
-    <Compile Include="Rules\ClassicalRules.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="IBoard.cs" />
     <Compile Include="Rules\IMoveRule.cs" />

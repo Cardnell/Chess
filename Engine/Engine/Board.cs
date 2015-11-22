@@ -7,9 +7,9 @@ namespace Cardnell.Chess.Engine
 {
     public class Board : IBoard
     {
-        private Dictionary<PieceColour, Piece> _kings;
-        private Dictionary<PieceColour, List<Piece>> _pieces;
-        private Tuple<int, int> boardSize;
+        private readonly Dictionary<PieceColour, Piece> _kings;
+        private readonly Dictionary<PieceColour, List<Piece>> _pieces;
+        private readonly Tuple<int, int> _boardSize;
 
 
         public Board() : this(8, 8)
@@ -18,7 +18,7 @@ namespace Cardnell.Chess.Engine
 
         public Board(int numberOfRanks, int numberOfFiles)
         {
-            boardSize = new Tuple<int, int>(numberOfRanks, numberOfFiles);
+            _boardSize = new Tuple<int, int>(numberOfRanks, numberOfFiles);
             _kings = new Dictionary<PieceColour, Piece>();
             _pieces = new Dictionary<PieceColour, List<Piece>>();
         }
@@ -119,7 +119,7 @@ namespace Cardnell.Chess.Engine
             {
                 return false;
             }
-            return (position.Rank < boardSize.Item1 && position.File < boardSize.Item2);
+            return (position.Rank < _boardSize.Item1 && position.File < _boardSize.Item2);
         }
 
         private void AddKing(Piece piece, Position position)

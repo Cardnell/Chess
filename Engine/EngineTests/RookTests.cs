@@ -83,12 +83,27 @@ namespace EngineTests
         public void CantJumpPiece()
         {
             Init();
-            var finalPosition = new Position(_initialPosition.Rank + 2, _initialPosition.File);
+            var finalPosition = new Position(_initialPosition.Rank + 3, _initialPosition.File);
             var inTheWay = new Position(_initialPosition.Rank + 1, _initialPosition.File);
 
+            var finalPositionTwo = new Position(_initialPosition.Rank - 2, _initialPosition.File);
+            var inTheWayTwo = new Position(_initialPosition.Rank - 1, _initialPosition.File);
+
+            var finalPositionThree = new Position(_initialPosition.Rank , _initialPosition.File + 4);
+            var inTheWayThree = new Position(_initialPosition.Rank, _initialPosition.File + 2);
+
+            var finalPositionFour = new Position(_initialPosition.Rank, _initialPosition.File - 3);
+            var inTheWayFour = new Position(_initialPosition.Rank, _initialPosition.File - 2);
+
             _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Pawn), inTheWay);
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Pawn), inTheWayTwo);
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Pawn), inTheWayThree);
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Pawn), inTheWayFour);
 
             Assert.IsFalse(_game.IsMoveLegal(_initialPosition, finalPosition, _piece.Colour));
+            Assert.IsFalse(_game.IsMoveLegal(_initialPosition, finalPositionTwo, _piece.Colour));
+            Assert.IsFalse(_game.IsMoveLegal(_initialPosition, finalPositionThree, _piece.Colour));
+            Assert.IsFalse(_game.IsMoveLegal(_initialPosition, finalPositionFour, _piece.Colour));
         }
 
         [Test]
@@ -142,6 +157,7 @@ namespace EngineTests
             var downLeftMore = new Position(_initialPosition.Rank - 1, _initialPosition.File - 2);
             var downRightMore = new Position(_initialPosition.Rank - 1, _initialPosition.File + 2);
 
+            Assert.IsFalse(_game.IsMoveLegal(_initialPosition, _initialPosition, _piece.Colour));
             Assert.IsFalse(_game.IsMoveLegal(_initialPosition, upLeft, _piece.Colour));
             Assert.IsFalse(_game.IsMoveLegal(_initialPosition, upRight, _piece.Colour));
             Assert.IsFalse(_game.IsMoveLegal(_initialPosition, downLeft, _piece.Colour));

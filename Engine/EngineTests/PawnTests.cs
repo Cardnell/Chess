@@ -80,7 +80,7 @@ namespace EngineTests
             _game.MakeMove(blackBishopPosition, new Position(6, 5), PieceColour.Black);
             _game.MakeMove(whiteBishopPosition, new Position(6, 6), PieceColour.White);
 
-            Assert.IsTrue(_game.IsMoveLegal(pawnPosition, pawnMoveTo, PieceColour.Black));
+            Assert.IsFalse(_game.IsMoveLegal(pawnPosition, pawnMoveTo, PieceColour.Black));
         }
 
 
