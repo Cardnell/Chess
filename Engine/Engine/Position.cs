@@ -13,38 +13,45 @@ namespace Cardnell.Chess.Engine
             File = file;
         }
 
-//        // override object.Equals
-//        public override bool Equals(object obj)
-//        {
-//            //       
-//            // See the full list of guidelines at
-//            //   http://go.microsoft.com/fwlink/?LinkID=85237  
-//            // and also the guidance for operator== at
-//            //   http://go.microsoft.com/fwlink/?LinkId=85238
-//            //
+        public Position(string v) : this()
+        {
+            char[] algebraicNotation = v.ToCharArray();
+            Rank = algebraicNotation[1] - 49;
+            File = algebraicNotation[0] - 65;
+        }
 
-//            if (obj == null || GetType() != obj.GetType())
-//            {
-//                return false;
-//            }
+        //        // override object.Equals
+        //        public override bool Equals(object obj)
+        //        {
+        //            //       
+        //            // See the full list of guidelines at
+        //            //   http://go.microsoft.com/fwlink/?LinkID=85237  
+        //            // and also the guidance for operator== at
+        //            //   http://go.microsoft.com/fwlink/?LinkId=85238
+        //            //
 
-//            if (GetHashCode() != obj.GetHashCode())
-//            {
-//                return false;
-//            }
-//            if (Rank != ((Position)obj).Rank)
-//            {
-//                return false;
-//            }
-//            return File == ((Position)obj).File;
-//        }
+        //            if (obj == null || GetType() != obj.GetType())
+        //            {
+        //                return false;
+        //            }
 
-//// override object.GetHashCode
-//        public override int GetHashCode()
-//        {
-//            return Rank.GetHashCode() ^ File.GetHashCode();
-//;
-//        }
+        //            if (GetHashCode() != obj.GetHashCode())
+        //            {
+        //                return false;
+        //            }
+        //            if (Rank != ((Position)obj).Rank)
+        //            {
+        //                return false;
+        //            }
+        //            return File == ((Position)obj).File;
+        //        }
+
+        //// override object.GetHashCode
+        //        public override int GetHashCode()
+        //        {
+        //            return Rank.GetHashCode() ^ File.GetHashCode();
+        //;
+        //        }
     }
 
 }

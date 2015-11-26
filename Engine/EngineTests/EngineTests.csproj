@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="BishopTests.cs" />
     <Compile Include="BoardTests.cs" />
+    <Compile Include="CastleTests.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="GameTests.cs" />
     <Compile Include="KingTests.cs" />

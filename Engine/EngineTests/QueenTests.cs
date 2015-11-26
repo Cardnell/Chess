@@ -83,7 +83,7 @@ namespace EngineTests
                 }
 
                 var downSome = new Position(_initialPosition.Rank, _initialPosition.File - i);
-                if (downSome.File > 8)
+                if (downSome.File >= 0)
                 {
                     Assert.IsTrue(_game.IsMoveLegal(_initialPosition, downSome, _piece.Colour));
                 }
@@ -103,7 +103,7 @@ namespace EngineTests
                 }
 
                 var downSome = new Position(_initialPosition.Rank - i, _initialPosition.File);
-                if (downSome.Rank > 8)
+                if (downSome.Rank >= 0)
                 {
                     Assert.IsTrue(_game.IsMoveLegal(_initialPosition, downSome, _piece.Colour));
                 }

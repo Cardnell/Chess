@@ -117,5 +117,15 @@ namespace EngineTests
 
 
         }
+
+        [Test]
+        public void TryToGetPieceOffBoard()
+        {
+            var position = new Position(9, 8);
+
+            Board board = new Board(8,8);
+
+            Assert.IsNull(board.GetPieceAt(position));
+        }
     }
 }

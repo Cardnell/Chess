@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.NetworkInformation;
 
 namespace Cardnell.Chess.Engine
 {
@@ -68,6 +67,11 @@ namespace Cardnell.Chess.Engine
         //todo Enpassant removal
         public void MovePiece(Move move)
         {
+            if (IsCastling(move))
+            {
+                Castle(move);
+                return;
+            }
             Piece piece = GetPieceAt(move.InitialPosition);
             if (piece == null)
             {
@@ -82,6 +86,30 @@ namespace Cardnell.Chess.Engine
             }
             piece.Position = move.FinalPosition;
             
+        }
+
+        private void Castle(Move move)
+        {
+            move.PieceMoved = GetPieceAt(move.InitialPosition);
+            move.PieceMoved.Position = move.FinalPosition;
+            if (move.FinalPosition.File > move.InitialPosition.File)
+            {
+                Piece rook = GetPieceAt(new Position(move.InitialPosition.Rank, move.InitialPosition.File + 3));
+                rook.Position = new Position(move.InitialPosition.Rank, move.InitialPosition.File + 1);
+            }
+            else
+            {
+                Piece rook = GetPieceAt(new Position(move.InitialPosition.Rank, move.InitialPosition.File -4 ));
+                rook.Position = new Position(move.InitialPosition.Rank, move.InitialPosition.File - 1);
+
+
+            }
+        }
+
+        private bool IsCastling(Move move)
+        {
+            return GetPieceAt(move.InitialPosition).PieceType == PieceType.King
+                   && Math.Abs(move.FinalPosition.File - move.InitialPosition.File) == 2;
         }
 
         public void ReverseMove(Move move)
@@ -131,7 +159,7 @@ namespace Cardnell.Chess.Engine
 
                     if (_kings[piece.Colour] != null)
                     {
-                        throw new ArgumentException(string.Format("{0} king already present", piece.Colour));
+                        throw new ArgumentException($"{piece.Colour} king already present");
                     }
             _kings[piece.Colour] = piece;
             piece.Position = position;

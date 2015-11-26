@@ -221,6 +221,46 @@ namespace EngineTests
             rulesEngineMock.VerifyAll();
         }
 
+        [Test]
+        public void IllegalMoveWhenIsMoveNotLegal()
+        {
+            var boardMock = new Mock<IBoard>();
+            var rulesEngineMock = new Mock<IRulesEngine>();
+
+            var game = new Game(boardMock.Object, rulesEngineMock.Object);
+
+            var initialPosition = new Position(2, 1);
+            var finalPosition = new Position(4, 2);
+
+            rulesEngineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), It.IsAny<Board>(), It.IsAny<IList<Move>>()))
+                .Returns(false);
+            var piece = new Piece(PieceColour.White, PieceType.Bishop);
+
+            boardMock.Setup(x => x.GetPieceAt(It.IsAny<Position>())).Returns(piece);
+
+
+            Assert.Throws<ArgumentException>(() => game.MakeMove(initialPosition, finalPosition, PieceColour.White));
+        }
+        [Test]
+        public void IllegalMoveWhenNoPieceThere()
+        {
+            var boardMock = new Mock<IBoard>();
+            var rulesEngineMock = new Mock<IRulesEngine>();
+
+            var game = new Game(boardMock.Object, rulesEngineMock.Object);
+
+            var initialPosition = new Position(2, 1);
+            var finalPosition = new Position(4, 2);
+
+            rulesEngineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), It.IsAny<Board>(), It.IsAny<IList<Move>>()))
+                .Returns(true);
+
+            boardMock.Setup(x => x.GetPieceAt(It.IsAny<Position>())).Returns((Piece) null);
+
+
+            Assert.Throws<ArgumentException>(() => game.MakeMove(initialPosition, finalPosition, PieceColour.White));
+        }
+
 
     }
 }
