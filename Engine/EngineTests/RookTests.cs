@@ -15,6 +15,12 @@ namespace EngineTests
 
         private void Init()
         {
+            InitWithoutKings();
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position(0, 0));
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position(7, 7));
+        }
+        private void InitWithoutKings()
+        {
             _game = new Game(new Board(), new RefactoredClassicalRules());
             _initialPosition = new Position(2, 3);
             _piece = new Piece(PieceColour.White, PieceType.Rook);
@@ -132,7 +138,7 @@ namespace EngineTests
         [Test]
         public void CantMoveIntoCheck()
         {
-            Init();
+            InitWithoutKings();
             var KingPosition = new Position(_initialPosition.Rank, _initialPosition.File - 1);
             var RookPosition = new Position(_initialPosition.Rank, _initialPosition.File + 1);
             var newPosition = new Position(_initialPosition.Rank + 1, _initialPosition.File );

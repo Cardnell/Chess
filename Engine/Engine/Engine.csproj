@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cardnell.Chess.Engine</RootNamespace>
     <AssemblyName>Cardnell.Chess.Engine</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -48,6 +48,7 @@
     <Compile Include="Rules\CantTakeOwnPieceRule.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="IBoard.cs" />
+    <Compile Include="Rules\CastlingRule.cs" />
     <Compile Include="Rules\IMoveRule.cs" />
     <Compile Include="Rules\IRulesEngine.cs" />
     <Compile Include="Move.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="Rules\QueenMoveRule.cs" />
     <Compile Include="Rules\RefactoredClassicalRules.cs" />
     <Compile Include="Rules\RookMoveRule.cs" />
+    <Compile Include="Rules\SimplePieceRules.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

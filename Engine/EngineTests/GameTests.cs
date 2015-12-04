@@ -203,10 +203,11 @@ namespace EngineTests
             var boardMock = new Mock<IBoard>();
             var rulesEngineMock = new Mock<IRulesEngine>();
 
-            Move move = new Move(new Position(1,1), new Position(2,2), PieceColour.White, null, null);
+            Move move = new Move(new Position(1,1), new Position(2,2), PieceColour.White, new Piece(PieceColour.White, PieceType.Knight), null);
             rulesEngineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), boardMock.Object, It.IsAny<List<Move>>())).Returns(true);
             Piece piece = new Piece(PieceColour.White, PieceType.Knight);
             boardMock.Setup(x => x.GetPieceAt(move.InitialPosition)).Returns(piece);
+            boardMock.Setup(x => x.MovePiece(It.IsAny<Move>())).Returns(move);
 
             var game = new Game(boardMock.Object, rulesEngineMock.Object);
 

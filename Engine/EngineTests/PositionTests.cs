@@ -15,10 +15,14 @@ namespace EngineTests
         [Test]
         public void AlgebraicNotation()
         {
-            Assert.AreEqual(2, new Position("D3").Rank);
-            Assert.AreEqual(3, new Position("D3").File);
-            Assert.AreEqual(5, new Position("E6").Rank);
-            Assert.AreEqual(4, new Position("E6").File);
+            Assert.AreEqual(2, new Position("D3").Rank, "UpperCase Rank");
+            Assert.AreEqual(3, new Position("D3").File, "UpperCase File");
+            Assert.AreEqual(5, new Position("E6").Rank, "UpperCase Rank");
+            Assert.AreEqual(4, new Position("E6").File, "UpperCase File");
+            Assert.AreEqual(2, new Position("d3").Rank, "LowerCase Rank");
+            Assert.AreEqual(3, new Position("d3").File, "LowerCase File");
         }
+
+
     }
 }

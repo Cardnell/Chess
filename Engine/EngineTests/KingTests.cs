@@ -130,9 +130,9 @@ namespace EngineTests
         public void CantMoveIntoCheck()
         {
             Init();
-            var BishopPosition = new Position(_initialPosition.Rank + 1, _initialPosition.File + 2);
+            var bishopPosition = new Position(_initialPosition.Rank + 1, _initialPosition.File + 2);
             var newPosition = new Position(_initialPosition.Rank, _initialPosition.File + 1);
-            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Bishop), BishopPosition);
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Bishop), bishopPosition);
 
             Assert.IsFalse(_game.IsMoveLegal(_initialPosition, newPosition, _piece.Colour));
         }

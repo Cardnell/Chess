@@ -1,7 +1,11 @@
-﻿namespace Cardnell.Chess.Engine
+﻿using System;
+using static System.String;
+
+namespace Cardnell.Chess.Engine
 {
     public class Move
     {
+
         public Move(Position initialPosition,
             Position finalPosition,
             PieceColour mover,
@@ -13,6 +17,23 @@
             PieceMoved = pieceMoved;
             PieceTaken = pieceTaken;
             Mover = mover;
+        }
+
+        public Move(string move, PieceColour mover)
+        {
+            Mover = mover;
+            if (Compare(move, "0-0", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                string rank = Mover == PieceColour.White ? "1" : "8";
+                InitialPosition = new Position("e" + rank);
+                FinalPosition = new Position("g" + rank);
+            }
+            if (Compare(move, "0-0-0", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                string rank = Mover == PieceColour.White ? "1" : "8";
+                InitialPosition = new Position("e" + rank);
+                FinalPosition = new Position("c" + rank);
+            }
         }
 
         public Position InitialPosition { get; private set; }

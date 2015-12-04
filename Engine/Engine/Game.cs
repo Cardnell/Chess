@@ -50,9 +50,20 @@ namespace Cardnell.Chess.Engine
                 throw new ArgumentException("Move not legal");
             }
             var move = new Move(initialPosition, finalPosition, mover, null, null);
-            Board.MovePiece(move);
-            Moves.Add(move);
+            Move updatedMoved = Board.MovePiece(move);
+            Moves.Add(updatedMoved);
+            updatedMoved.PieceMoved.HasMoved = true;
 
+        }
+
+        public bool? IsMoveLegal(Move move)
+        {
+            return IsMoveLegal(move.InitialPosition, move.FinalPosition, move.Mover);
+        }
+
+        public void MakeMove(Move move)
+        {
+            MakeMove(move.InitialPosition, move.FinalPosition, move.Mover);
         }
     }
 }

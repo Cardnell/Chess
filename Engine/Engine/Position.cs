@@ -17,7 +17,11 @@ namespace Cardnell.Chess.Engine
         {
             char[] algebraicNotation = v.ToCharArray();
             Rank = algebraicNotation[1] - 49;
-            File = algebraicNotation[0] - 65;
+            File = algebraicNotation[0] - 97;
+            if (File < 0)
+            {
+                File += 32;
+            }
         }
 
         //        // override object.Equals

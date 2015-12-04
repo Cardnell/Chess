@@ -6,24 +6,12 @@ namespace Cardnell.Chess.Engine.Rules
 {
     public class RefactoredClassicalRules : IRulesEngine
     {
-        private readonly Dictionary<PieceType, List<IMoveRule>> _moveLegality;
+        IRulesEngine _simplePieceRules = new SimplePieceRules();
+        IRulesEngine _castlingEngine;
 
         public RefactoredClassicalRules()
         {
-            _moveLegality = new Dictionary<PieceType, List<IMoveRule>>
-            {
-                {PieceType.Bishop, new List<IMoveRule> {new BishopMoveRule()}},
-                {PieceType.King, new List<IMoveRule> {new KingMoveRule()}},
-                {PieceType.Knight, new List<IMoveRule> {new KnightMoveRule()}},
-                {PieceType.Queen, new List<IMoveRule> {new QueenMoveRule()}},
-                {PieceType.Rook, new List<IMoveRule> {new RookMoveRule()}},
-                {PieceType.Pawn, new List<IMoveRule> {new PawnMoveRule()}}
-            };
-
-            foreach (var ruleList in _moveLegality.Values)
-            {
-                ruleList.Add(new CantTakeOwnPieceRule());
-            }
+            _castlingEngine = new CastlingRule(_simplePieceRules);
         }
 
         public bool IsMoveLegal(Move move, IBoard board, IList<Move> moves)
@@ -37,13 +25,7 @@ namespace Cardnell.Chess.Engine.Rules
             {
                 return false;
             }
-            Piece pieceToMove = board.GetPieceAt(move.InitialPosition);
-            if (pieceToMove == null)
-            {
-                return false;
-            }
-            if (!(_moveLegality.ContainsKey(pieceToMove.PieceType) &&
-                  _moveLegality[pieceToMove.PieceType].All(rule => rule.IsMoveLegal(move, board, moves))))
+            if (!_simplePieceRules.IsMoveLegal(move, board, moves) && !_castlingEngine.IsMoveLegal(move, board, moves))
             {
                 return false;
             }
@@ -53,20 +35,17 @@ namespace Cardnell.Chess.Engine.Rules
 
         private bool CantMoveIntoCheck(Move move, IBoard board, IList<Move> moves)
         {
-            //  return true;
+            ////  return true;
             board.MovePiece(move);
             try
             {
-                Piece king = board.GetKing(move.Mover);
-                if (king == null)
-                {
-                    return true;
-                }
-                IEnumerable<Piece> oppositePieces = board.GetPieces(move.Mover + 1);
+                Position kingPosition = board.GetKingPosition(move.Mover);
+ 
+                IEnumerable<Tuple<Piece, Position>> oppositePieces = board.GetPieces(move.Mover + 1);
 
                 return !oppositePieces.Any(
                     piece =>
-                        IsMoveLegal(new Move(piece.Position, king.Position, piece.Colour, null, null), board, moves, false));
+                        IsMoveLegal(new Move(piece.Item2, kingPosition, piece.Item1.Colour, null, null), board, moves, false));
             }
             catch (Exception e)
             {
@@ -76,6 +55,8 @@ namespace Cardnell.Chess.Engine.Rules
             {
                 board.ReverseMove(move);
             }
+            return true;
+            throw new NotImplementedException();
         }
     }
 }

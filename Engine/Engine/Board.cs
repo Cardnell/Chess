@@ -6,9 +6,9 @@ namespace Cardnell.Chess.Engine
 {
     public class Board : IBoard
     {
-        private readonly Dictionary<PieceColour, Piece> _kings;
-        private readonly Dictionary<PieceColour, List<Piece>> _pieces;
         private readonly Tuple<int, int> _boardSize;
+        private Piece[,] _squares;
+        private Dictionary<PieceColour, Position> _kingPosition;
 
 
         public Board() : this(8, 8)
@@ -17,9 +17,8 @@ namespace Cardnell.Chess.Engine
 
         public Board(int numberOfRanks, int numberOfFiles)
         {
+            _squares = new Piece[numberOfRanks,numberOfFiles];
             _boardSize = new Tuple<int, int>(numberOfRanks, numberOfFiles);
-            _kings = new Dictionary<PieceColour, Piece>();
-            _pieces = new Dictionary<PieceColour, List<Piece>>();
         }
 
         public void AddPiece(Piece piece, Position position)
@@ -32,30 +31,16 @@ namespace Cardnell.Chess.Engine
             {
                 throw new ArgumentException("Piece already at position" + position);
             }
-            if (piece.PieceType != PieceType.King)
-            {
-                if (!_pieces.ContainsKey(piece.Colour))
-                {
-                    _pieces.Add(piece.Colour, new List<Piece>());
-                }
-                _pieces[piece.Colour].Add(piece);
-                piece.Position = position;
-                return;
-            }
-            AddKing(piece, position);
+            _squares[position.Rank, position.File] = piece;
         }
 
         public Piece GetPieceAt(Position position)
         {
-            if (!IsPositionOnBoard(position))
+            if (position.Rank < _squares.GetLength(0) && position.File < _squares.GetLength(1))
             {
-                return null;
+                return _squares[position.Rank, position.File];
             }
-
-            Piece output = _kings.Values.FirstOrDefault(t => t.Position.Equals(position));
-            return output ??
-                   _pieces.Values.Select(piecesList => piecesList.FirstOrDefault(t => t.Position.Equals(position)))
-                       .FirstOrDefault(piece => piece != null);
+            return null;
         }
 
         public bool IsPieceAt(Position position)
@@ -65,43 +50,48 @@ namespace Cardnell.Chess.Engine
 
 
         //todo Enpassant removal
-        public void MovePiece(Move move)
+        public Move MovePiece(Move move)
         {
-            if (IsCastling(move))
-            {
-                Castle(move);
-                return;
-            }
             Piece piece = GetPieceAt(move.InitialPosition);
             if (piece == null)
             {
                 throw new ArgumentException("No piece at locattion");
             }
             move.PieceMoved = piece;
+            if (IsCastling(move))
+            {
+                Castle(move);
+                return move;
+            }
             Piece pieceToRemove = GetPieceAt(move.FinalPosition);
             if (pieceToRemove != null)
             {
                 move.PieceTaken = pieceToRemove;
-                RemovePieceAtLocation(move.FinalPosition);
             }
-            piece.Position = move.FinalPosition;
-            
+             
+            _squares[move.FinalPosition.Rank, move.FinalPosition.File] =
+                _squares[move.InitialPosition.Rank, move.InitialPosition.File];
+
+            _squares[move.InitialPosition.Rank, move.InitialPosition.File] = null;
+            return move;
+
         }
 
         private void Castle(Move move)
         {
-            move.PieceMoved = GetPieceAt(move.InitialPosition);
-            move.PieceMoved.Position = move.FinalPosition;
+            _squares[move.FinalPosition.Rank, move.FinalPosition.File] =
+                _squares[move.InitialPosition.Rank, move.InitialPosition.File];
             if (move.FinalPosition.File > move.InitialPosition.File)
             {
-                Piece rook = GetPieceAt(new Position(move.InitialPosition.Rank, move.InitialPosition.File + 3));
-                rook.Position = new Position(move.InitialPosition.Rank, move.InitialPosition.File + 1);
+                _squares[move.InitialPosition.Rank, move.InitialPosition.File + 1] =
+                    _squares[move.InitialPosition.Rank, move.InitialPosition.File + 3];
+                _squares[move.InitialPosition.Rank, move.InitialPosition.File + 3] = null;
             }
             else
             {
-                Piece rook = GetPieceAt(new Position(move.InitialPosition.Rank, move.InitialPosition.File -4 ));
-                rook.Position = new Position(move.InitialPosition.Rank, move.InitialPosition.File - 1);
-
+                _squares[move.InitialPosition.Rank, move.InitialPosition.File - 1] =
+                    _squares[move.InitialPosition.Rank, move.InitialPosition.File - 4];
+                _squares[move.InitialPosition.Rank, move.InitialPosition.File - 4] = null;
 
             }
         }
@@ -114,31 +104,57 @@ namespace Cardnell.Chess.Engine
 
         public void ReverseMove(Move move)
         {
-            Piece piece = GetPieceAt(move.FinalPosition);
-            piece.Position = move.InitialPosition;
+            _squares[move.InitialPosition.Rank, move.InitialPosition.File] =
+                _squares[move.FinalPosition.Rank, move.FinalPosition.File];
+
             if (move.PieceTaken != null)
             {
-                AddPiece(move.PieceTaken, move.FinalPosition);
+                _squares[move.FinalPosition.Rank, move.FinalPosition.File] = move.PieceTaken;
             }
-        }
-
-        public IEnumerable<Piece> GetPieces(PieceColour colour)
-        {
-            if (_kings.ContainsKey(colour))
+            else
             {
-                return _pieces.ContainsKey(colour)
-                    ? _pieces[colour].Select(t => t).Concat(new List<Piece> {_kings[colour]})
-                    : new List<Piece> {_kings[colour]};
+                _squares[move.FinalPosition.Rank, move.FinalPosition.File] = null;
             }
-            return _pieces.ContainsKey(colour)
-                ? _pieces[colour]
-                : new List<Piece>();
+        }
+
+        public IEnumerable<Tuple<Piece, Position>> GetPieces(PieceColour colour)
+        {
+            var pieces = new List<Tuple<Piece, Position>>();
+            for (int i = 0; i < _squares.GetLength(0); i++)
+            {
+                for (int j = 0; j < _squares.GetLength(0); j++)
+                {
+                    if (_squares[i, j] == null)
+                    {
+                        continue;
+                    }
+                    if (_squares[i, j].Colour == colour)
+                    {
+                        pieces.Add(new Tuple<Piece, Position>(_squares[i,j], new Position(i,j)));
+                    }
+                }
+            }
+            return pieces;
         }
 
 
-        public Piece GetKing(PieceColour colour)
+        public Position GetKingPosition(PieceColour colour)
         {
-            return _kings.ContainsKey(colour) ? _kings[colour] : null;
+            for (int i = 0; i < _squares.GetLength(0); i++)
+            {
+                for (int j = 0; j < _squares.GetLength(1); j++)
+                {
+                    if (_squares[i, j] == null)
+                    {
+                        continue;
+                    }
+                    if(_squares[i,j].PieceType == PieceType.King && _squares[i,j].Colour == colour)
+                    {
+                        return new Position(i,j);
+                    }
+                }
+            }
+            throw new ArgumentException("No king of colour " + colour);
         }
 
         public bool IsPositionOnBoard(Position position)
@@ -150,36 +166,5 @@ namespace Cardnell.Chess.Engine
             return (position.Rank < _boardSize.Item1 && position.File < _boardSize.Item2);
         }
 
-        private void AddKing(Piece piece, Position position)
-        {
-            if (!_kings.ContainsKey(piece.Colour))
-            {
-                _kings.Add(piece.Colour, null);
-            }
-
-                    if (_kings[piece.Colour] != null)
-                    {
-                        throw new ArgumentException($"{piece.Colour} king already present");
-                    }
-            _kings[piece.Colour] = piece;
-            piece.Position = position;
-        }
-
-        private void RemovePieceAtLocation(Position finalPosition)
-        {
-            if (_kings.Values.Any(t => t.Position.Equals(finalPosition)))
-            {
-                throw new ArgumentException("Can't remove king");
-            }
-            foreach (List<Piece> pieces in _pieces.Values)
-            {
-                for (int i = 0; i < pieces.Count; i++)
-                {
-                    if (!pieces[i].Position.Equals(finalPosition)) continue;
-                    pieces.RemoveAt(i);
-                    return;
-                }
-            }
-        }
     }
 }

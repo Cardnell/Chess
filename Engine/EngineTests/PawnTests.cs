@@ -11,8 +11,13 @@ namespace EngineTests
         private Position _initialPosition;
         private Piece _piece;
 
-
         private void Init()
+        {
+            InitWithoutKings();
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position(0, 0));
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position(7, 7));
+        }
+        private void InitWithoutKings()
         {
             _game = new Game(new Board(), new RefactoredClassicalRules());
             _initialPosition = new Position(2, 3);
@@ -68,7 +73,7 @@ namespace EngineTests
 
 
             var whiteBishop = new Piece(PieceColour.White, PieceType.Bishop);
-            var whiteBishopPosition = new Position(7, 7);
+            var whiteBishopPosition = new Position(1, 2);
             var blackBishop = new Piece(PieceColour.Black, PieceType.Bishop);
             var blackBishopPosition = new Position(7, 6);
 
@@ -78,7 +83,7 @@ namespace EngineTests
 
             _game.MakeMove(_initialPosition, pawnMoveTo, PieceColour.White);
             _game.MakeMove(blackBishopPosition, new Position(6, 5), PieceColour.Black);
-            _game.MakeMove(whiteBishopPosition, new Position(6, 6), PieceColour.White);
+            _game.MakeMove(whiteBishopPosition, new Position(2, 3), PieceColour.White);
 
             Assert.IsFalse(_game.IsMoveLegal(pawnPosition, pawnMoveTo, PieceColour.Black));
         }
@@ -111,7 +116,7 @@ namespace EngineTests
         [Test]
         public void CantMoveIntoCheck()
         {
-            Init();
+            InitWithoutKings();
             var KingPosition = new Position(_initialPosition.Rank - 1, _initialPosition.File - 1);
             var BishopPosition = new Position(_initialPosition.Rank + 1, _initialPosition.File + 1);
             var newPosition = new Position(_initialPosition.Rank + 1, _initialPosition.File);
