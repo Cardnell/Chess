@@ -66,12 +66,12 @@ namespace Cardnell.Chess.Engine
             MakeMove(move.InitialPosition, move.FinalPosition, move.Mover);
         }
 
-        public void ReverseLastMove()
-        {
-            if (Moves.Count > 0)
-            {
-                Board.ReverseMove(Moves[Moves.Count - 1]);
-            }
-        }
+        //public void ReverseLastMove()
+        //{
+        //    if (Moves.Count > 0)
+        //    {
+        //        Board.ReverseMove(Moves[Moves.Count - 1]);
+        //    }
+        //}
     }
 }

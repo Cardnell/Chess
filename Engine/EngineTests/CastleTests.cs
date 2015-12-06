@@ -9,7 +9,7 @@ namespace EngineTests
     [TestFixture]
     public class CastleTests
     {
-        private IRulesEngine _rulesEngine;
+        private IMoveRule _rulesEngine;
 
         private void Init()
         {
@@ -34,7 +34,7 @@ namespace EngineTests
         public void CantCastleIntoCheck()
         {
             var rulesEngineMock = new Mock<IRulesEngine>();
-            IRulesEngine castlingRulesEngine = new CastlingRule(rulesEngineMock.Object);
+            IMoveRule castlingRulesEngine = new CastlingRule(rulesEngineMock.Object);
             var board = GetSimpleCorrectBoard();
             board.AddPiece(new Piece(PieceColour.Black, PieceType.Queen), new Position("e2"));
 
@@ -75,7 +75,7 @@ namespace EngineTests
         public void CantCastletThroughCheck()
         {
             var rulesEngineMock = new Mock<IRulesEngine>();
-            IRulesEngine castlingRulesEngine = new CastlingRule(rulesEngineMock.Object);
+            IMoveRule castlingRulesEngine = new CastlingRule(rulesEngineMock.Object);
             var board = GetSimpleCorrectBoard();
             board.AddPiece(new Piece(PieceColour.Black, PieceType.Queen), new Position("e2"));
 
@@ -107,7 +107,7 @@ namespace EngineTests
         public void CantCastleWhenInCheck()
         {
             var rulesEngineMock = new Mock<IRulesEngine>();
-            IRulesEngine castlingRulesEngine = new CastlingRule(rulesEngineMock.Object);
+            IMoveRule castlingRulesEngine = new CastlingRule(rulesEngineMock.Object);
             var board = GetSimpleCorrectBoard();
             board.AddPiece(new Piece(PieceColour.Black, PieceType.Queen), new Position("e2"));
 

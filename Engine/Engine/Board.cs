@@ -127,20 +127,20 @@ namespace Cardnell.Chess.Engine
                    && Math.Abs(move.FinalPosition.File - move.InitialPosition.File) == 2;
         }
 
-        public void ReverseMove(Move move)
-        {
-            _squares[move.InitialPosition.Rank, move.InitialPosition.File] =
-                _squares[move.FinalPosition.Rank, move.FinalPosition.File];
+        //public void ReverseMove(Move move)
+        //{
+        //    _squares[move.InitialPosition.Rank, move.InitialPosition.File] =
+        //        _squares[move.FinalPosition.Rank, move.FinalPosition.File];
 
-            if (move.PieceTaken != null)
-            {
-                _squares[move.FinalPosition.Rank, move.FinalPosition.File] = move.PieceTaken;
-            }
-            else
-            {
-                _squares[move.FinalPosition.Rank, move.FinalPosition.File] = null;
-            }
-        }
+        //    if (move.PieceTaken != null)
+        //    {
+        //        _squares[move.FinalPosition.Rank, move.FinalPosition.File] = move.PieceTaken;
+        //    }
+        //    else
+        //    {
+        //        _squares[move.FinalPosition.Rank, move.FinalPosition.File] = null;
+        //    }
+        //}
 
         public IEnumerable<Tuple<Piece, Position>> GetPieces(PieceColour colour)
         {

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Cardnell.Chess.Engine.Rules
 {
-    public class CastlingRule: IRulesEngine
+    public class CastlingRule: IMoveRule
     {
         readonly Dictionary<PieceColour, Position[]> _positions = new Dictionary<PieceColour, Position[]>();
         IRulesEngine _rulesEngineForChecks;

@@ -15,7 +15,7 @@ namespace Cardnell.Chess.Engine
         IEnumerable<Tuple<Piece, Position>> GetPieces(PieceColour colour);
 
         Position GetKingPosition(PieceColour colour);
-        void ReverseMove(Move move);
+        //void ReverseMove(Move move);
         bool IsPositionOnBoard(Position initialPosition);
     }
 }

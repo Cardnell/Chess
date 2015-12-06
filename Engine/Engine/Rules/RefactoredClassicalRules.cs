@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace Cardnell.Chess.Engine.Rules
@@ -7,11 +8,13 @@ namespace Cardnell.Chess.Engine.Rules
     public class RefactoredClassicalRules : IRulesEngine
     {
         IRulesEngine _simplePieceRules = new SimplePieceRules();
-        IRulesEngine _castlingEngine;
+        IMoveRule _castlingEngine;
+        IMoveRule _checkRulesEngine;
 
         public RefactoredClassicalRules()
         {
             _castlingEngine = new CastlingRule(_simplePieceRules);
+            _checkRulesEngine = new CantMoveIntoCheck(_simplePieceRules);
         }
 
         public bool IsMoveLegal(Move move, IBoard board, IList<Move> moves)
@@ -35,28 +38,9 @@ namespace Cardnell.Chess.Engine.Rules
 
         private bool CantMoveIntoCheck(Move move, IBoard board, IList<Move> moves)
         {
-            ////  return true;
-            board.MovePiece(move);
-            try
-            {
-                Position kingPosition = board.GetKingPosition(move.Mover);
- 
-                IEnumerable<Tuple<Piece, Position>> oppositePieces = board.GetPieces(move.Mover + 1);
-
-                return !oppositePieces.Any(
-                    piece =>
-                        IsMoveLegal(new Move(piece.Item2, kingPosition, piece.Item1.Colour, null, null), board, moves, false));
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-            finally
-            {
-                board.ReverseMove(move);
-            }
-            return true;
-            throw new NotImplementedException();
+            return _checkRulesEngine.IsMoveLegal(move, board, moves);
         }
+
+
     }
 }
