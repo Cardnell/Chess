@@ -49,7 +49,6 @@ namespace Cardnell.Chess.Engine
         }
 
 
-        //todo Enpassant removal
         public Move MovePiece(Move move)
         {
             Piece piece = GetPieceAt(move.InitialPosition);
@@ -61,6 +60,11 @@ namespace Cardnell.Chess.Engine
             if (IsCastling(move))
             {
                 Castle(move);
+                return move;
+            }
+            if (IsEnpassant(move))
+            {
+                Enpassant(move);
                 return move;
             }
             Piece pieceToRemove = GetPieceAt(move.FinalPosition);
@@ -75,6 +79,27 @@ namespace Cardnell.Chess.Engine
             _squares[move.InitialPosition.Rank, move.InitialPosition.File] = null;
             return move;
 
+        }
+
+        private void Enpassant(Move move)
+        {
+
+            _squares[move.FinalPosition.Rank, move.FinalPosition.File] =
+                _squares[move.InitialPosition.Rank, move.InitialPosition.File];
+
+            _squares[move.InitialPosition.Rank, move.InitialPosition.File] = null;
+            move.PieceTaken = _squares[move.InitialPosition.Rank, move.FinalPosition.File];
+
+            _squares[move.InitialPosition.Rank, move.FinalPosition.File] = null;
+        }
+
+        private bool IsEnpassant(Move move)
+        {
+            if (GetPieceAt(move.InitialPosition).PieceType != PieceType.Pawn)
+            {
+                return false;
+            }
+            return !IsPieceAt(move.FinalPosition);
         }
 
         private void Castle(Move move)

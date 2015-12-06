@@ -175,6 +175,44 @@ namespace EngineTests
         }
 
         [Test]
+        public void ReverseEnpassantMove()
+        {
+            Init();
+
+            var newPosition = new Position(4, 4);
+            var thePiece = new Piece(PieceColour.Black, PieceType.Pawn);
+            var pawnMoveTo = new Position(_initialPosition.Rank + 2, _initialPosition.File);
+
+            _game.Board.AddPiece(thePiece, newPosition);
+
+            _game.MakeMove(_initialPosition, pawnMoveTo, PieceColour.White);
+            _game.MakeMove(newPosition, new Position(_initialPosition.Rank + 1, _initialPosition.File),
+                PieceColour.Black);
+            _game.ReverseLastMove();
+
+            Assert.IsTrue(_game.Board.IsPieceAt(new Position(_initialPosition.Rank, _initialPosition.File)));
+            Assert.IsTrue(_game.Board.IsPieceAt(pawnMoveTo));
+        }
+
+        [Test]
+        public void EnpassantRemovesDeadPawn()
+        {
+            Init();
+
+            var newPosition = new Position(4, 4);
+            var thePiece = new Piece(PieceColour.Black, PieceType.Pawn);
+            var pawnMoveTo = new Position(_initialPosition.Rank + 2, _initialPosition.File);
+
+            _game.Board.AddPiece(thePiece, newPosition);
+
+            _game.MakeMove(_initialPosition, pawnMoveTo, PieceColour.White);
+            _game.MakeMove(newPosition, new Position(_initialPosition.Rank + 1, _initialPosition.File),
+                PieceColour.Black);
+
+            Assert.IsFalse(_game.Board.IsPieceAt(pawnMoveTo));
+        }
+
+        [Test]
         public void RandomOtherIlligalMoves()
         {
             Init();

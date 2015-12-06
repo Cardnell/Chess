@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Cardnell.Chess.Engine;
 using Cardnell.Chess.Engine.Rules;
 using Moq;
@@ -260,6 +261,27 @@ namespace EngineTests
 
 
             Assert.Throws<ArgumentException>(() => game.MakeMove(initialPosition, finalPosition, PieceColour.White));
+        }
+
+
+        [Test]
+        public void ReverseLastMove()
+        {
+            Piece piece = new Piece(PieceColour.White, PieceType.Pawn);
+            Move move = new Move(new Position("e2"), new Position("e4"), PieceColour.White, piece, null);
+
+            var boardMock = new Mock<IBoard>();
+            var rulesEngineMock = new Mock<IRulesEngine>();
+            rulesEngineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), boardMock.Object, It.IsAny<List<Move>>())).Returns(true);
+            boardMock.Setup(x => x.GetPieceAt(move.InitialPosition)).Returns(piece);
+            boardMock.Setup(x => x.MovePiece(It.IsAny<Move>())).Returns(move);
+            boardMock.Setup(x => x.ReverseMove(move));
+
+            Game game = new Game(boardMock.Object, rulesEngineMock.Object);
+            game.MakeMove(move);
+            game.ReverseLastMove();
+
+            boardMock.VerifyAll();
         }
 
 

@@ -127,5 +127,6 @@ namespace EngineTests
 
             Assert.IsNull(board.GetPieceAt(position));
         }
+
     }
 }
