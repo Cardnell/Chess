@@ -17,7 +17,7 @@ namespace Cardnell.Chess.Engine
 
         public Board(int numberOfRanks, int numberOfFiles)
         {
-            _squares = new Piece[numberOfRanks,numberOfFiles];
+            _squares = new Piece[numberOfRanks, numberOfFiles];
             _boardSize = new Tuple<int, int>(numberOfRanks, numberOfFiles);
         }
 
@@ -72,7 +72,7 @@ namespace Cardnell.Chess.Engine
             {
                 move.PieceTaken = pieceToRemove;
             }
-             
+
             _squares[move.FinalPosition.Rank, move.FinalPosition.File] =
                 _squares[move.InitialPosition.Rank, move.InitialPosition.File];
 
@@ -106,6 +106,8 @@ namespace Cardnell.Chess.Engine
         {
             _squares[move.FinalPosition.Rank, move.FinalPosition.File] =
                 _squares[move.InitialPosition.Rank, move.InitialPosition.File];
+
+            _squares[move.InitialPosition.Rank, move.InitialPosition.File] = null;
             if (move.FinalPosition.File > move.InitialPosition.File)
             {
                 _squares[move.InitialPosition.Rank, move.InitialPosition.File + 1] =
@@ -127,21 +129,6 @@ namespace Cardnell.Chess.Engine
                    && Math.Abs(move.FinalPosition.File - move.InitialPosition.File) == 2;
         }
 
-        //public void ReverseMove(Move move)
-        //{
-        //    _squares[move.InitialPosition.Rank, move.InitialPosition.File] =
-        //        _squares[move.FinalPosition.Rank, move.FinalPosition.File];
-
-        //    if (move.PieceTaken != null)
-        //    {
-        //        _squares[move.FinalPosition.Rank, move.FinalPosition.File] = move.PieceTaken;
-        //    }
-        //    else
-        //    {
-        //        _squares[move.FinalPosition.Rank, move.FinalPosition.File] = null;
-        //    }
-        //}
-
         public IEnumerable<Tuple<Piece, Position>> GetPieces(PieceColour colour)
         {
             var pieces = new List<Tuple<Piece, Position>>();
@@ -155,7 +142,7 @@ namespace Cardnell.Chess.Engine
                     }
                     if (_squares[i, j].Colour == colour)
                     {
-                        pieces.Add(new Tuple<Piece, Position>(_squares[i,j], new Position(i,j)));
+                        pieces.Add(new Tuple<Piece, Position>(_squares[i, j], new Position(i, j)));
                     }
                 }
             }
@@ -173,9 +160,9 @@ namespace Cardnell.Chess.Engine
                     {
                         continue;
                     }
-                    if(_squares[i,j].PieceType == PieceType.King && _squares[i,j].Colour == colour)
+                    if (_squares[i, j].PieceType == PieceType.King && _squares[i, j].Colour == colour)
                     {
-                        return new Position(i,j);
+                        return new Position(i, j);
                     }
                 }
             }
@@ -191,5 +178,36 @@ namespace Cardnell.Chess.Engine
             return (position.Rank < _boardSize.Item1 && position.File < _boardSize.Item2);
         }
 
+        public IList<Position> GetPositions()
+        {
+            var output = new List<Position>();
+            for (int i = 0; i < _squares.GetLength(0); i++)
+            {
+                for (int j = 0; j < _squares.GetLength(1); j++)
+                {
+                    output.Add(new Position(i, j));
+                }
+            }
+
+            return output;
+        }
+
+        public Board Copy()
+        {
+            var output = new Board(_boardSize.Item1, _boardSize.Item2);
+            for (int i = 0; i < _squares.GetLength(0); i++)
+            {
+                for (int j = 0; j < _squares.GetLength(1); j++)
+                {
+                    Position position = new Position(i, j);
+                    Piece piece = GetPieceAt(position);
+                    if (piece != null)
+                    {
+                        output.AddPiece(piece, position);
+                    }
+                }
+            }
+            return output;
+        }
     }
 }

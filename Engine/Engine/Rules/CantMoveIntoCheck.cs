@@ -6,7 +6,8 @@ namespace Cardnell.Chess.Engine.Rules
 {
     public class CantMoveIntoCheck : IMoveRule
     {
-        IRulesEngine _simplePieceSimplePieceRules;
+        private readonly IRulesEngine _simplePieceSimplePieceRules;
+
         public CantMoveIntoCheck(IRulesEngine simplePieceRules)
         {
             _simplePieceSimplePieceRules = simplePieceRules;
@@ -14,48 +15,29 @@ namespace Cardnell.Chess.Engine.Rules
 
         public bool IsMoveLegal(Move move, IBoard board, IList<Move> moves)
         {
-            if (move.PieceMoved.PieceType == PieceType.King)
+            Board newPosition = board.Copy();
+            var newMoves = new List<Move>();
+            newMoves.AddRange(moves);
+            newMoves.Add(move);
+            newPosition.MovePiece(move);
+            PieceColour oppasiteColour = move.Mover == PieceColour.White ? PieceColour.Black : PieceColour.White;
+            Position kingPosition = newPosition.GetKingPosition(move.Mover);
+            IEnumerable<Tuple<Piece, Position>> pieces = newPosition.GetPieces(oppasiteColour);
+
+            if (
+                pieces.Select(piecePosition => new Move(piecePosition.Item2, kingPosition, oppasiteColour, null, null))
+                    .Any(possibleMove => _simplePieceSimplePieceRules.IsMoveLegal(possibleMove, newPosition, newMoves)))
             {
-                IEnumerable<Tuple<Piece, Position>> oppositePieces = board.GetPieces(move.Mover + 1);
-                return !oppositePieces.Any(
-                    piece =>
-                        _simplePieceSimplePieceRules.IsMoveLegal(new Move(piece.Item2, move.FinalPosition, piece.Item1.Colour, null, null), board, moves));
-            }
-
-            Position kingPosition = board.GetKingPosition(move.Mover);
-            if (kingPosition.File == move.InitialPosition.File)
-            {
-                int direction = move.InitialPosition.Rank > kingPosition.Rank ? 1 : -1;
-                var initalPosition = new Position(kingPosition.Rank + direction, kingPosition.File);
-
-                return CheckLine(move, board, x => new Position(x.Rank + direction, x.File),
-                    x => x != PieceType.Queen && x != PieceType.Rook, initalPosition);
-            }
-
-            if (kingPosition.Rank == move.InitialPosition.Rank)
-            {
-                int direction = move.InitialPosition.File > kingPosition.File ? 1 : -1;
-                var initalPosition = new Position(kingPosition.Rank, kingPosition.File + direction);
-
-                return CheckLine(move, board, x => new Position(x.Rank, x.File + direction),
-                    x => x != PieceType.Queen && x != PieceType.Rook, initalPosition);
-            }
-
-            if (Math.Abs(move.InitialPosition.File - kingPosition.File) ==
-                Math.Abs(move.InitialPosition.Rank - kingPosition.Rank))
-            {
-                int fileDirection = move.InitialPosition.File > kingPosition.File ? 1 : -1;
-                int rankDirection = move.InitialPosition.Rank > kingPosition.Rank ? 1 : -1;
-
-                var initalPosition = new Position(kingPosition.Rank + rankDirection, kingPosition.File + fileDirection);
-
-                return CheckLine(move, board, x => new Position(x.Rank + rankDirection, x.File + fileDirection),
-                    x => x != PieceType.Queen && x != PieceType.Bishop, initalPosition);
+                return false;
             }
             return true;
         }
 
-        private static bool CheckLine(Move move, IBoard board, Func<Position, Position> moveIncrement, Func<PieceType, bool> checkConstraint, Position startPosition)
+        private static bool CheckLine(Move move,
+            IBoard board,
+            Func<Position, Position> moveIncrement,
+            Func<PieceType, bool> checkConstraint,
+            Position startPosition)
         {
             Position positionToCheck = startPosition;
             while (board.IsPositionOnBoard(positionToCheck))

@@ -17,5 +17,7 @@ namespace Cardnell.Chess.Engine
         Position GetKingPosition(PieceColour colour);
         //void ReverseMove(Move move);
         bool IsPositionOnBoard(Position initialPosition);
+        IList<Position> GetPositions();
+        Board Copy();
     }
 }

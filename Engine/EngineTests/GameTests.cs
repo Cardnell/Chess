@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using Cardnell.Chess.Engine;
 using Cardnell.Chess.Engine.Rules;
 using Moq;
@@ -12,9 +11,113 @@ namespace EngineTests
     [TestFixture]
     internal class GameTests
     {
+        [SetUp]
+        public void SetUp()
+        {
+            _board = new Board();
+            _game = new Game(_board, _rulesEngine);
+        }
+
+        private IBoard _board;
+        private readonly IRulesEngine _rulesEngine = new RefactoredClassicalRules();
+        private Game _game;
+
         private static string GetPiecePoisitionString(Tuple<Piece, Position> value)
         {
             return value.Item1.PieceType.ToString() + value.Item1.Colour + value.Item2.Rank + value.Item2.File;
+        }
+
+        [Test]
+        public void CheckMate()
+        {
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("e1"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Queen), new Position("a2"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("e3"));
+
+            Assert.AreEqual(GameStatus.InProgress, _game.GameStatus);
+            _game.MakeMove(new Position("a2"), new Position("e2"), PieceColour.White);
+            Assert.AreEqual(GameStatus.WhiteWon, _game.GameStatus);
+        }
+
+        [Test]
+        public void GetListOfPossibleMovesForKing()
+        {
+            var whiteKingPosition = new Position("e1");
+            var whiteKing = new Piece(PieceColour.White, PieceType.King);
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("e8"));
+            _game.Board.AddPiece(whiteKing, whiteKingPosition);
+
+            IList<Move> _actualPossibleMoves = _game.GetPossibleMoves(whiteKingPosition);
+
+            IList<Move> _expectedMoves = new List<Move>
+            {
+                new Move(whiteKingPosition, new Position("d1"), whiteKing.Colour, whiteKing, null),
+                new Move(whiteKingPosition, new Position("d2"), whiteKing.Colour, whiteKing, null),
+                new Move(whiteKingPosition, new Position("e2"), whiteKing.Colour, whiteKing, null),
+                new Move(whiteKingPosition, new Position("f2"), whiteKing.Colour, whiteKing, null),
+                new Move(whiteKingPosition, new Position("f1"), whiteKing.Colour, whiteKing, null)
+            };
+
+            Assert.AreEqual(_expectedMoves.Count, _actualPossibleMoves.Count);
+            foreach (var move in _expectedMoves)
+            {
+                Assert.AreEqual(1,
+                    _actualPossibleMoves.Count(x => x.FinalPosition.Equals(move.FinalPosition) && x.InitialPosition.Equals(move.InitialPosition)
+                            &&
+                            x.Mover == move.Mover && x.PieceMoved == move.PieceMoved));
+            }
+        }
+
+        [Test]
+        public void IllegalMoveWhenIsMoveNotLegal()
+        {
+            var boardMock = new Mock<IBoard>();
+            var rulesEngineMock = new Mock<IRulesEngine>();
+
+            var game = new Game(boardMock.Object, rulesEngineMock.Object);
+
+            var initialPosition = new Position(2, 1);
+            var finalPosition = new Position(4, 2);
+
+            rulesEngineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), It.IsAny<Board>(), It.IsAny<IList<Move>>()))
+                .Returns(false);
+            var piece = new Piece(PieceColour.White, PieceType.Bishop);
+
+            boardMock.Setup(x => x.GetPieceAt(It.IsAny<Position>())).Returns(piece);
+
+
+            Assert.Throws<ArgumentException>(() => game.MakeMove(initialPosition, finalPosition, PieceColour.White));
+        }
+
+        [Test]
+        public void IllegalMoveWhenNoPieceThere()
+        {
+            var boardMock = new Mock<IBoard>();
+            var rulesEngineMock = new Mock<IRulesEngine>();
+
+            var game = new Game(boardMock.Object, rulesEngineMock.Object);
+
+            var initialPosition = new Position(2, 1);
+            var finalPosition = new Position(4, 2);
+
+            rulesEngineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), It.IsAny<Board>(), It.IsAny<IList<Move>>()))
+                .Returns(true);
+
+            boardMock.Setup(x => x.GetPieceAt(It.IsAny<Position>())).Returns((Piece) null);
+
+
+            Assert.Throws<ArgumentException>(() => game.MakeMove(initialPosition, finalPosition, PieceColour.White));
+        }
+
+        [Test]
+        public void IsInCheck()
+        {
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("e1"));
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Queen), new Position("e4"));
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("e8"));
+
+            Assert.IsTrue(_game.IsInCheck(PieceColour.White));
+            Assert.IsFalse(_game.IsInCheck(PieceColour.Black));
         }
 
         [Test]
@@ -86,6 +189,36 @@ namespace EngineTests
             Assert.AreEqual(move.Mover, returnedMove.Mover);
             Assert.AreEqual(move.PieceMoved, returnedMove.PieceMoved);
             Assert.AreEqual(move.PieceTaken, returnedMove.PieceTaken);
+        }
+
+        [Test]
+        public void MakeMoveAddsToMoveList()
+        {
+            var boardMock = new Mock<IBoard>();
+            var rulesEngineMock = new Mock<IRulesEngine>();
+
+            var move = new Move(new Position(1, 1),
+                new Position(2, 2),
+                PieceColour.White,
+                new Piece(PieceColour.White, PieceType.Knight),
+                null);
+            rulesEngineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), boardMock.Object, It.IsAny<List<Move>>()))
+                .Returns(true);
+            var piece = new Piece(PieceColour.White, PieceType.Knight);
+            boardMock.Setup(x => x.GetPieceAt(move.InitialPosition)).Returns(piece);
+            boardMock.Setup(x => x.MovePiece(It.IsAny<Move>())).Returns(move);
+
+            var game = new Game(boardMock.Object, rulesEngineMock.Object);
+
+
+            game.MakeMove(move.InitialPosition, move.FinalPosition, PieceColour.White);
+
+            Assert.AreEqual(1, game.Moves.Count);
+            Assert.AreEqual(move.InitialPosition, game.Moves[0].InitialPosition);
+            Assert.AreEqual(move.FinalPosition, game.Moves[0].FinalPosition);
+            Assert.AreEqual(move.Mover, game.Moves[0].Mover);
+            //Assert.AreEqual(piece, game.Moves[0].PieceMoved);
+            rulesEngineMock.VerifyAll();
         }
 
         [Test]
@@ -165,10 +298,10 @@ namespace EngineTests
                 {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position(1, 4)), 1},
                 {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position(7, 5)), 1},
                 {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position(7, 6)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position(7, 7)), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position(7, 7)), 1}
             };
 
-            var piecesComparison = piecesToAdd.Keys.ToDictionary(GetPiecePoisitionString, value => 1);
+            Dictionary<string, int> piecesComparison = piecesToAdd.Keys.ToDictionary(GetPiecePoisitionString, value => 1);
 
             var addCalls = new List<Tuple<Piece, Position>>();
             boardMock.Setup(c => c.AddPiece(It.IsAny<Piece>(), It.IsAny<Position>()))
@@ -179,7 +312,7 @@ namespace EngineTests
 
             Assert.AreEqual(32, addCalls.Count);
 
-            foreach (var pieces in addCalls)
+            foreach (Tuple<Piece, Position> pieces in addCalls)
             {
                 Assert.IsTrue(piecesComparison.ContainsKey(GetPiecePoisitionString(pieces)),
                     pieces.Item1.ToString() + pieces.Item2);
@@ -199,70 +332,15 @@ namespace EngineTests
         }
 
         [Test]
-        public void MakeMoveAddsToMoveList()
+        public void StaleMate()
         {
-            var boardMock = new Mock<IBoard>();
-            var rulesEngineMock = new Mock<IRulesEngine>();
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("e1"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Queen), new Position("a3"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("f3"));
 
-            Move move = new Move(new Position(1,1), new Position(2,2), PieceColour.White, new Piece(PieceColour.White, PieceType.Knight), null);
-            rulesEngineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), boardMock.Object, It.IsAny<List<Move>>())).Returns(true);
-            Piece piece = new Piece(PieceColour.White, PieceType.Knight);
-            boardMock.Setup(x => x.GetPieceAt(move.InitialPosition)).Returns(piece);
-            boardMock.Setup(x => x.MovePiece(It.IsAny<Move>())).Returns(move);
-
-            var game = new Game(boardMock.Object, rulesEngineMock.Object);
-
-            
-            game.MakeMove(move.InitialPosition, move.FinalPosition, PieceColour.White);
-
-            Assert.AreEqual(1, game.Moves.Count);
-            Assert.AreEqual(move.InitialPosition, game.Moves[0].InitialPosition);
-            Assert.AreEqual(move.FinalPosition, game.Moves[0].FinalPosition);
-            Assert.AreEqual(move.Mover, game.Moves[0].Mover);
-            //Assert.AreEqual(piece, game.Moves[0].PieceMoved);
-            rulesEngineMock.VerifyAll();
+            Assert.AreEqual(GameStatus.InProgress, _game.GameStatus);
+            _game.MakeMove(new Position("a3"), new Position("d3"), PieceColour.White);
+            Assert.AreEqual(GameStatus.Drawn, _game.GameStatus);
         }
-
-        [Test]
-        public void IllegalMoveWhenIsMoveNotLegal()
-        {
-            var boardMock = new Mock<IBoard>();
-            var rulesEngineMock = new Mock<IRulesEngine>();
-
-            var game = new Game(boardMock.Object, rulesEngineMock.Object);
-
-            var initialPosition = new Position(2, 1);
-            var finalPosition = new Position(4, 2);
-
-            rulesEngineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), It.IsAny<Board>(), It.IsAny<IList<Move>>()))
-                .Returns(false);
-            var piece = new Piece(PieceColour.White, PieceType.Bishop);
-
-            boardMock.Setup(x => x.GetPieceAt(It.IsAny<Position>())).Returns(piece);
-
-
-            Assert.Throws<ArgumentException>(() => game.MakeMove(initialPosition, finalPosition, PieceColour.White));
-        }
-        [Test]
-        public void IllegalMoveWhenNoPieceThere()
-        {
-            var boardMock = new Mock<IBoard>();
-            var rulesEngineMock = new Mock<IRulesEngine>();
-
-            var game = new Game(boardMock.Object, rulesEngineMock.Object);
-
-            var initialPosition = new Position(2, 1);
-            var finalPosition = new Position(4, 2);
-
-            rulesEngineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), It.IsAny<Board>(), It.IsAny<IList<Move>>()))
-                .Returns(true);
-
-            boardMock.Setup(x => x.GetPieceAt(It.IsAny<Position>())).Returns((Piece) null);
-
-
-            Assert.Throws<ArgumentException>(() => game.MakeMove(initialPosition, finalPosition, PieceColour.White));
-        }
-
-
     }
 }

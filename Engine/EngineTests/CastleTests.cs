@@ -10,24 +10,26 @@ namespace EngineTests
     public class CastleTests
     {
         private IMoveRule _rulesEngine;
+        private Board _board;
 
-        private void Init()
+        [SetUp]
+        public void Setup()
         {
             var engineMock = new Mock<IRulesEngine>();
             //rules enginge is used to check on checks for castling, except where testing this, we want to 
             //return false to show nothing can move to that position
             engineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), It.IsAny<IBoard>(), It.IsAny<IList<Move>>()))
                 .Returns(false);
-
+            _board = new Board();
             _rulesEngine = new CastlingRule(engineMock.Object);
+            _board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("e8"));
         }
 
         private Board GetSimpleCorrectBoard()
         {
-            var board = new Board();
-            board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("e1"));
-            board.AddPiece(new Piece(PieceColour.White, PieceType.Rook), new Position("h1"));
-            return board;
+            _board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("e1"));
+            _board.AddPiece(new Piece(PieceColour.White, PieceType.Rook), new Position("h1"));
+            return _board;
         }
 
         [Test]
@@ -64,7 +66,6 @@ namespace EngineTests
         [Test]
         public void CantCastleThroughPieces()
         {
-            Init();
             var board = GetSimpleCorrectBoard();
             board.AddPiece(new Piece(PieceColour.White, PieceType.Queen), new Position("f1"));
             Assert.IsFalse(_rulesEngine.IsMoveLegal(new Move("0-0", PieceColour.White), board, new List<Move>()));
@@ -129,7 +130,6 @@ namespace EngineTests
         public void CastlingInGameSetting()
         {
             var board = GetSimpleCorrectBoard();
-            board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("e8"));
 
             var game = new Game(board, new RefactoredClassicalRules());
 
@@ -143,7 +143,6 @@ namespace EngineTests
             var board = GetSimpleCorrectBoard();
 
             var game = new Game(board, new RefactoredClassicalRules());
-            board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("e8"));
 
             game.MakeMove(new Move(new Position("h1"), new Position("g1"), PieceColour.White, null, null));
             game.MakeMove(new Move(new Position("e8"), new Position("f8"), PieceColour.Black, null, null));
@@ -156,8 +155,7 @@ namespace EngineTests
         [Test]
         public void KingsideCastle()
         {
-            Init();
-            var board = new Board();
+            var board = _board;
             var kingStartPosition = new Position("E1");
             var rookStartPosition = new Position("H1");
             var kingEndPosition = new Position("G1");
@@ -181,17 +179,20 @@ namespace EngineTests
         [Test]
         public void PieceMissing()
         {
-            Init();
             var kingsBoard = new Board();
             var rooksBoard = new Board();
 
             var king = new Piece(PieceColour.White, PieceType.King);
             var rook = new Piece(PieceColour.White, PieceType.Rook);
+            var blackKing = new Piece(PieceColour.Black, PieceType.King);
             var kingPosition = new Position("E1");
             var kingSideRook = new Position("H1");
+            var blackKingPosition = new Position("E8");
 
             kingsBoard.AddPiece(king, kingPosition);
+            kingsBoard.AddPiece(blackKing, blackKingPosition);
             rooksBoard.AddPiece(rook, kingSideRook);
+            rooksBoard.AddPiece(blackKing, blackKingPosition);
 
             var kingSideCastle = new Move("0-0", PieceColour.White);
 
@@ -202,7 +203,6 @@ namespace EngineTests
         [Test]
         public void PiecesInCorrectLocation()
         {
-            Init();
             var queenSideBoard = new Board();
             var blackKingSideBoard = new Board();
             var blackQueenSideBoard = new Board();
@@ -221,12 +221,15 @@ namespace EngineTests
 
             queenSideBoard.AddPiece(king, kingPosition);
             queenSideBoard.AddPiece(rook, queenSideRook);
+            queenSideBoard.AddPiece(blackKing, blackKingPosition);
 
             blackKingSideBoard.AddPiece(blackKing, blackKingPosition);
             blackKingSideBoard.AddPiece(blackRook, blackKingSideRook);
+            blackKingSideBoard.AddPiece(king, kingPosition);
 
-            blackQueenSideBoard.AddPiece(king, blackKingPosition);
-            blackQueenSideBoard.AddPiece(rook, blackQueenSideRook);
+            blackQueenSideBoard.AddPiece(blackKing, blackKingPosition);
+            blackQueenSideBoard.AddPiece(blackRook, blackQueenSideRook);
+            blackQueenSideBoard.AddPiece(king, kingPosition);
 
             var kingSideCastle = new Move("0-0", PieceColour.White);
             var queenSideCastle = new Move("0-0-0", PieceColour.White);
@@ -247,8 +250,7 @@ namespace EngineTests
         [Test]
         public void QueensideCastle()
         {
-            Init();
-            var board = new Board();
+            var board = _board;
             var kingStartPosition = new Position("E1");
             var rookStartPosition = new Position("A1");
             var kingEndPosition = new Position("C1");
@@ -272,7 +274,6 @@ namespace EngineTests
         [Test]
         public void WrongColourPieces()
         {
-            Init();
             var kingSideBoard = new Board();
 
             var king = new Piece(PieceColour.Black, PieceType.King);
@@ -283,6 +284,7 @@ namespace EngineTests
 
             kingSideBoard.AddPiece(king, kingPosition);
             kingSideBoard.AddPiece(rook, kingSideRook);
+            kingSideBoard.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("e8"));
 
             var kingSideCastle = new Move("0-0", PieceColour.Black);
 
@@ -292,7 +294,6 @@ namespace EngineTests
         [Test]
         public void WrongPieces()
         {
-            Init();
 
             var kingsBoard = new Board();
             var rooksBoard = new Board();
@@ -305,8 +306,10 @@ namespace EngineTests
 
             kingsBoard.AddPiece(king, kingPosition);
             kingsBoard.AddPiece(queen, kingSideRook);
+            kingsBoard.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("e8"));
             rooksBoard.AddPiece(rook, kingSideRook);
             rooksBoard.AddPiece(queen, kingPosition);
+            rooksBoard.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("e8"));
 
             var kingSideCastle = new Move("0-0", PieceColour.White);
 
@@ -317,7 +320,6 @@ namespace EngineTests
         [Test]
         public void WrongTypeOfCastle()
         {
-            Init();
             var board = GetSimpleCorrectBoard();
 
 

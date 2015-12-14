@@ -13,18 +13,19 @@ namespace EngineTests
         private Piece _piece;
 
 
-        private void Init()
+        [SetUp]
+        public void Setup()
         {
             _game = new Game(new Board(), new RefactoredClassicalRules());
             _initialPosition = new Position(2,3);
             _piece = new Piece(PieceColour.White, PieceType.King);
             _game.Board.AddPiece(_piece, _initialPosition);
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("a8"));
         }
 
         [Test]
         public void CanMoveOneSpaceInAFile()
         {
-            Init();
             var upOne = new Position(_initialPosition.Rank, _initialPosition.File + 1);
             var downOne = new Position(_initialPosition.Rank, _initialPosition.File - 1);
 
@@ -35,7 +36,6 @@ namespace EngineTests
         [Test]
         public void CanMoveOneSpaceInARank()
         {
-            Init();
             var upOne = new Position(_initialPosition.Rank + 1, _initialPosition.File);
             var downOne = new Position(_initialPosition.Rank - 1, _initialPosition.File);
 
@@ -46,7 +46,6 @@ namespace EngineTests
         [Test]
         public void CanMoveOneSpaceDiagnally()
         {
-            Init();
             var upLeft = new Position(_initialPosition.Rank + 1, _initialPosition.File - 1);
             var upRight = new Position(_initialPosition.Rank + 1, _initialPosition.File + 1);
             var downLeft = new Position(_initialPosition.Rank - 1, _initialPosition.File - 1);
@@ -61,7 +60,6 @@ namespace EngineTests
         [Test]
         public void CantMoveMoreThanOneSpaceInAFile()
         {
-            Init();
             for (int i = 2; i < 7; i++)
             {
                 var upSome = new Position(_initialPosition.Rank, _initialPosition.File + i);
@@ -75,7 +73,6 @@ namespace EngineTests
         [Test]
         public void CantMoveMoreThanOneSpaceInARank()
         {
-            Init();
             for (int i = 2; i <7; i++)
             {
                 var upSome = new Position(_initialPosition.Rank + i, _initialPosition.File);
@@ -88,7 +85,6 @@ namespace EngineTests
         [Test]
         public void CantMoveMoreThanOneSpaceDiagnally()
         {
-            Init();
             for (int i = 2; i < 7; i++)
             {
                 var upLeft = new Position(_initialPosition.Rank + i, _initialPosition.File - i);
@@ -106,7 +102,6 @@ namespace EngineTests
         [Test]
         public void CanTakeOtherColour()
         {
-            Init();
             var upOne = new Position(_initialPosition.Rank, _initialPosition.File + 1);
             var otherPiece = new Piece(PieceColour.Black, PieceType.Knight);
             _game.Board.AddPiece(otherPiece, upOne);
@@ -117,7 +112,6 @@ namespace EngineTests
         [Test]
         public void CantTakeSameColour()
         {
-            Init();
             var upOne = new Position(_initialPosition.Rank, _initialPosition.File + 1);
             var otherPiece = new Piece(PieceColour.White, PieceType.Knight);
             _game.Board.AddPiece(otherPiece, upOne);
@@ -129,12 +123,22 @@ namespace EngineTests
         [Test]
         public void CantMoveIntoCheck()
         {
-            Init();
             var bishopPosition = new Position(_initialPosition.Rank + 1, _initialPosition.File + 2);
             var newPosition = new Position(_initialPosition.Rank, _initialPosition.File + 1);
             _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Bishop), bishopPosition);
 
             Assert.IsFalse(_game.IsMoveLegal(_initialPosition, newPosition, _piece.Colour));
+        }
+
+        [Test]
+        public void CantMoveInStandardMatePosition()
+        {   
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("e1"));
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Queen), new Position("e2"));
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("e3"));
+
+            Assert.IsFalse(
+                _game.IsMoveLegal(new Move(new Position("e1"), new Position("d1"), PieceColour.White, null, null)));
         }
 
         //[Test]
