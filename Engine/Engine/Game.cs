@@ -108,13 +108,56 @@ namespace Cardnell.Chess.Engine
         {
             Piece piece = Board.GetPieceAt(piecePosition);
             IList < Position > positions = Board.GetPositions();
-            List<Move> list = new List<Move>();
-            foreach (Position position in positions)
+            return positions.Select(position => new Move(piecePosition, position, piece.Colour, piece, null)).Where(potentialMove => _rulesEngine.IsMoveLegal(potentialMove, Board, Moves)).ToList();
+        }
+
+        public void MakeMove(string move, PieceColour pieceColour)
+        {
+            var finalPosition = GetPGNMoveLocation(move);
+            PieceType pieceType = GetPieceType(move);
+            Position initalPostion = GetInitialPosition(finalPosition, pieceType, pieceColour);
+            MakeMove(initalPostion, finalPosition, pieceColour);
+        }
+
+        private Position GetPGNMoveLocation(string move)
+        {
+            return new Position(move[move.Length - 2].ToString() + move[move.Length - 1]);
+        }
+
+        private PieceType GetPieceType(string move)
+        {
+            if (move.Length == 2)
             {
-                Move potentialMove = new Move(piecePosition, position, piece.Colour, piece, null);
-                if (_rulesEngine.IsMoveLegal(potentialMove, Board, Moves)) list.Add(potentialMove);
+                return PieceType.Pawn;
             }
-            return list;
+            string pieceTypeString = move[0].ToString();
+            if (pieceTypeString == "N")
+            {
+                return PieceType.Knight;
+            }
+            if (pieceTypeString == "B")
+            {
+                return PieceType.Bishop;
+            }
+            if (pieceTypeString == "R")
+            {
+                return PieceType.Rook;
+            }
+            if (pieceTypeString == "Q")
+            {
+                return PieceType.Queen;
+            }
+            if (pieceTypeString == "K")
+            {
+                return PieceType.King;
+            }
+            throw new ArgumentException("Piece type not recognised");
+        }
+
+        private Position GetInitialPosition(Position finalPosition, PieceType pieceType, PieceColour pieceColour)
+        {
+            var piecePositions = Board.GetPieces(PieceColour.White, pieceType);
+            return piecePositions.First(x => IsMoveLegal(x.Item2, finalPosition, pieceColour)).Item2;
         }
     }
 }

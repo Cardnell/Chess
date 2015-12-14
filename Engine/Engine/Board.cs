@@ -131,6 +131,11 @@ namespace Cardnell.Chess.Engine
 
         public IEnumerable<Tuple<Piece, Position>> GetPieces(PieceColour colour)
         {
+            return GetPieceSelection(x=>x.Colour == colour);
+        }
+
+        private IEnumerable<Tuple<Piece, Position>> GetPieceSelection(Func<Piece, bool> condition)
+        {
             var pieces = new List<Tuple<Piece, Position>>();
             for (int i = 0; i < _squares.GetLength(0); i++)
             {
@@ -140,7 +145,7 @@ namespace Cardnell.Chess.Engine
                     {
                         continue;
                     }
-                    if (_squares[i, j].Colour == colour)
+                    if (condition(_squares[i,j]))
                     {
                         pieces.Add(new Tuple<Piece, Position>(_squares[i, j], new Position(i, j)));
                     }
@@ -208,6 +213,11 @@ namespace Cardnell.Chess.Engine
                 }
             }
             return output;
+        }
+
+        public IEnumerable<Tuple<Piece, Position>> GetPieces(PieceColour colour, PieceType pieceType)
+        {
+            return GetPieceSelection(x => x.Colour == colour  && x.PieceType == pieceType);
         }
     }
 }

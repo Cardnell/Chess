@@ -32,31 +32,5 @@ namespace Cardnell.Chess.Engine.Rules
             }
             return true;
         }
-
-        private static bool CheckLine(Move move,
-            IBoard board,
-            Func<Position, Position> moveIncrement,
-            Func<PieceType, bool> checkConstraint,
-            Position startPosition)
-        {
-            Position positionToCheck = startPosition;
-            while (board.IsPositionOnBoard(positionToCheck))
-            {
-                if (!positionToCheck.Equals(move.InitialPosition))
-                {
-                    if (board.IsPieceAt(positionToCheck))
-                    {
-                        Piece pieceToCheck = board.GetPieceAt(positionToCheck);
-                        if (pieceToCheck.Colour == move.Mover)
-                        {
-                            return true;
-                        }
-                        return checkConstraint(pieceToCheck.PieceType);
-                    }
-                }
-                positionToCheck = moveIncrement(positionToCheck);
-            }
-            return true;
-        }
     }
 }

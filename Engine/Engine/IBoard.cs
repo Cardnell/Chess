@@ -19,5 +19,6 @@ namespace Cardnell.Chess.Engine
         bool IsPositionOnBoard(Position initialPosition);
         IList<Position> GetPositions();
         Board Copy();
+        IEnumerable<Tuple<Piece, Position>> GetPieces(PieceColour colour, PieceType pieceType);
     }
 }
