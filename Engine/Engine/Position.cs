@@ -16,46 +16,25 @@ namespace Cardnell.Chess.Engine
         public Position(string v) : this()
         {
             char[] algebraicNotation = v.ToCharArray();
-            Rank = algebraicNotation[1] - 49;
-            File = algebraicNotation[0] - 97;
-            if (File < 0)
-            {
-                File += 32;
-            }
+            Rank = GetRank(algebraicNotation[1]);
+            File = GetFile(algebraicNotation[0]);
+
         }
 
-        //        // override object.Equals
-        //        public override bool Equals(object obj)
-        //        {
-        //            //       
-        //            // See the full list of guidelines at
-        //            //   http://go.microsoft.com/fwlink/?LinkID=85237  
-        //            // and also the guidance for operator== at
-        //            //   http://go.microsoft.com/fwlink/?LinkId=85238
-        //            //
+        public static int GetFile(char file)
+        {
+            int output = file - 97;
+            if (output < 0)
+            {
+                output += 32;
+            }
+            return output;
+        }
 
-        //            if (obj == null || GetType() != obj.GetType())
-        //            {
-        //                return false;
-        //            }
-
-        //            if (GetHashCode() != obj.GetHashCode())
-        //            {
-        //                return false;
-        //            }
-        //            if (Rank != ((Position)obj).Rank)
-        //            {
-        //                return false;
-        //            }
-        //            return File == ((Position)obj).File;
-        //        }
-
-        //// override object.GetHashCode
-        //        public override int GetHashCode()
-        //        {
-        //            return Rank.GetHashCode() ^ File.GetHashCode();
-        //;
-        //        }
+        public static int GetRank(char rank)
+        {
+            return rank - 49;
+        }
     }
 
 }

@@ -106,7 +106,7 @@ namespace EngineTests
         }
 
         [Test]
-        public void TwoPossiblePieces()
+        public void TwoPossiblePiecesWithTheSameRank()
         {
             var initialPosition = new Position("a1");
             _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Rook), initialPosition);
@@ -118,7 +118,7 @@ namespace EngineTests
         }
 
         [Test]
-        public void TwoPossiblePiecesOtherSide()
+        public void TwoPossiblePiecesWithTheSameRankOtherSide()
         {
             var initialPosition = new Position("a1");
             _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Rook), initialPosition);
@@ -127,6 +127,56 @@ namespace EngineTests
             _game.MakeMove("Rab1", PieceColour.White);
             Move actualMove = _game.Moves[0];
             Assert.AreEqual(initialPosition, actualMove.InitialPosition);
+        }
+        [Test]
+        public void TwoPossiblePiecesWithTheSameFile()
+        {
+            var initialPosition = new Position("a1");
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Rook), initialPosition);
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Rook), new Position("a3"));
+
+            _game.MakeMove("R1a2", PieceColour.White);
+            Move actualMove = _game.Moves[0];
+            Assert.AreEqual(new Position("a1"), actualMove.InitialPosition);
+        }
+
+        [Test]
+        public void TwoPossiblePiecesWithTheSameFileOtherSide()
+        {
+            var initialPosition = new Position("a1");
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Rook), initialPosition);
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Rook), new Position("a3"));
+
+            _game.MakeMove("R3a2", PieceColour.White);
+            Move actualMove = _game.Moves[0];
+            Assert.AreEqual(new Position("a3"), actualMove.InitialPosition);
+        }
+
+        [Test]
+        public void PawnTakesPiece()
+        {
+            Piece pieceToTake = new Piece(PieceColour.Black, PieceType.Rook);
+
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Pawn), new Position("e2"));
+            _game.Board.AddPiece(pieceToTake, new Position("f3"));
+
+            _game.MakeMove("xf3", PieceColour.White);
+            Move actualMove = _game.Moves[0];
+            Assert.AreEqual(pieceToTake, actualMove.PieceTaken);
+        }
+
+
+        [Test]
+        public void PieceTakesPiece()
+        {
+            Piece pieceToTake = new Piece(PieceColour.Black, PieceType.Rook);
+
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Bishop), new Position("e2"));
+            _game.Board.AddPiece(pieceToTake, new Position("f3"));
+
+            _game.MakeMove("Bxf3", PieceColour.White);
+            Move actualMove = _game.Moves[0];
+            Assert.AreEqual(pieceToTake, actualMove.PieceTaken);
         }
     }
 }
