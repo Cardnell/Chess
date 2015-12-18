@@ -43,6 +43,7 @@
     <Compile Include="Board.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="GameSetup.cs" />
+    <Compile Include="PgnMoveParser.cs" />
     <Compile Include="Rules\BishopMoveRule.cs" />
     <Compile Include="Rules\CantMoveIntoCheck.cs" />
     <Compile Include="Rules\CantTakeOwnPieceRule.cs" />

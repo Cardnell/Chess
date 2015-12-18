@@ -187,8 +187,6 @@ namespace EngineTests
             Assert.AreEqual(move.InitialPosition, returnedMove.InitialPosition);
             Assert.AreEqual(move.FinalPosition, returnedMove.FinalPosition);
             Assert.AreEqual(move.Mover, returnedMove.Mover);
-            Assert.AreEqual(move.PieceMoved, returnedMove.PieceMoved);
-            Assert.AreEqual(move.PieceTaken, returnedMove.PieceTaken);
         }
 
         [Test]

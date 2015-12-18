@@ -17,21 +17,21 @@ namespace Cardnell.Chess.Engine
     {
         private readonly IRulesEngine _rulesEngine;
         public readonly List<Move> Moves;
+        private readonly PgnMoveParser _parser;
 
         public Game(IBoard board, IRulesEngine rulesEngine)
         {
             Board = board;
             _rulesEngine = rulesEngine;
+            _parser = new PgnMoveParser(_rulesEngine);
             Moves = new List<Move>();
             GameStatus = GameStatus.InProgress;
         }
 
 
         public Game(IBoard board, IRulesEngine rulesEngine, IEnumerable<Tuple<Piece, Position>> pieces)
+            :this(board, rulesEngine)
         {
-            Board = board;
-            _rulesEngine = rulesEngine;
-            Moves = new List<Move>();
             foreach (Tuple<Piece, Position> piece in pieces)
             {
                 board.AddPiece(piece.Item1, piece.Item2);
@@ -44,13 +44,7 @@ namespace Cardnell.Chess.Engine
 
         public bool IsMoveLegal(Position initialPosition, Position finalPosition, PieceColour mover)
         {
-            Piece piece = Board.GetPieceAt(initialPosition);
-            if (piece == null)
-            {
-                return false;
-            }
-            return piece.Colour == mover &&
-                   _rulesEngine.IsMoveLegal(new Move(initialPosition, finalPosition, mover, piece, null), Board, Moves);
+           return _rulesEngine.IsMoveLegal(new Move(initialPosition, finalPosition, mover, null, null), Board, Moves);
         }
 
 
@@ -60,7 +54,8 @@ namespace Cardnell.Chess.Engine
             {
                 throw new ArgumentException("Move not legal");
             }
-            var move = new Move(initialPosition, finalPosition, mover, null, null);
+            Piece pieceToMove = Board.GetPieceAt(initialPosition);
+            var move = new Move(initialPosition, finalPosition, mover, pieceToMove, null);
             Move updatedMoved = Board.MovePiece(move);
             Moves.Add(updatedMoved);
             updatedMoved.PieceMoved.HasMoved = true;
@@ -114,89 +109,12 @@ namespace Cardnell.Chess.Engine
 
         public void MakeMove(string move, PieceColour pieceColour)
         {
-            Position finalPosition = GetPGNMoveLocation(move);
-            bool isCapture = PgnMoveIsCapture(move);
-            PieceType pieceType = GetPieceType(move, isCapture);
-            Position initalPostion;
+            Move parsedMove = _parser.ParseMove(move, pieceColour, Board, Moves);
 
-            if (move.Length == (isCapture?5:4))
-            {
-                char pieceDeteminant = move[1];
-                double output;
-                if (double.TryParse(pieceDeteminant.ToString(), out output))
-                {
-                    initalPostion = GetInitialPosition(finalPosition,
-                        pieceType,
-                        pieceColour,
-                        x => x.Rank == Position.GetRank(pieceDeteminant));
-                }
-                else
-                {
-                    initalPostion = GetInitialPosition(finalPosition,
-                        pieceType,
-                        pieceColour,
-                        x => x.File == Position.GetFile(pieceDeteminant));
-                }
-            }
-            else
-            {
-                initalPostion = GetInitialPosition(finalPosition, pieceType, pieceColour, x => true);
-            }
-            MakeMove(initalPostion, finalPosition, pieceColour);
+            MakeMove(parsedMove);
         }
 
-        private static bool PgnMoveIsCapture(string move)
-        {
-            if (move.Length == 2)
-            {
-                return false;
-            }
-            return move[move.Length - 3] == 'x';
-        }
 
-        private static Position GetPGNMoveLocation(string move)
-        {
-            return new Position(move[move.Length - 2].ToString() + move[move.Length - 1]);
-        }
 
-        private PieceType GetPieceType(string move, bool isCapture)
-        {
-            if (move.Length == (isCapture?3:2))
-            {
-                return PieceType.Pawn;
-            }
-            string pieceTypeString = move[0].ToString();
-            if (pieceTypeString == "N")
-            {
-                return PieceType.Knight;
-            }
-            if (pieceTypeString == "B")
-            {
-                return PieceType.Bishop;
-            }
-            if (pieceTypeString == "R")
-            {
-                return PieceType.Rook;
-            }
-            if (pieceTypeString == "Q")
-            {
-                return PieceType.Queen;
-            }
-            if (pieceTypeString == "K")
-            {
-                return PieceType.King;
-            }
-            throw new ArgumentException("Piece type not recognised");
-        }
-
-        private Position GetInitialPosition(Position finalPosition,
-            PieceType pieceType,
-            PieceColour pieceColour,
-            Func<Position, bool> condition)
-        {
-            IEnumerable<Tuple<Piece, Position>> piecePositions = Board.GetPieces(PieceColour.White, pieceType);
-            return
-                piecePositions.First(x => IsMoveLegal(x.Item2, finalPosition, pieceColour) && condition(x.Item2)).Item2;
-        }
     }
 }

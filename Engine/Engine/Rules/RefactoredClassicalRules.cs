@@ -19,7 +19,12 @@ namespace Cardnell.Chess.Engine.Rules
 
         public bool IsMoveLegal(Move move, IBoard board, IList<Move> moves)
         {
-            return IsMoveLegal(move, board, moves, true);
+            Piece piece = board.GetPieceAt(move.InitialPosition);
+            if (piece == null)
+            {
+                return false;
+            }
+            return piece.Colour == move.Mover && IsMoveLegal(move, board, moves, true);
         }
 
         public bool IsMoveLegal(Move move, IBoard board, IList<Move> moves, bool checkContraint)

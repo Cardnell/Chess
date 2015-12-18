@@ -39,9 +39,7 @@ namespace Cardnell.Chess.Engine
         public Position InitialPosition { get; private set; }
         public Position FinalPosition { get; private set; }
         public Piece PieceMoved { get; set; }
-        public PieceColour Mover { get; private set; }
-        public bool HasMoved { get; set; }
+        public PieceColour Mover { get; }
         public Piece PieceTaken { get; set; }
-        public bool EnPassant { get; set; }
     }
 }

@@ -37,7 +37,8 @@ namespace Cardnell.Chess.Engine.Rules
             {
                 return false;
             }
-            int direction = GetDirection(move.PieceMoved.Colour);
+            
+            int direction = GetDirection(move.Mover);
             if (direction*(move.FinalPosition.Rank - move.InitialPosition.Rank) != 1)
             {
                 return false;
@@ -49,7 +50,7 @@ namespace Cardnell.Chess.Engine.Rules
             {
                 return false;
             }
-            if (lastPiece.Colour == move.PieceMoved.Colour)
+            if (lastPiece.Colour == move.Mover)
             {
                 return false;
             }
@@ -57,7 +58,7 @@ namespace Cardnell.Chess.Engine.Rules
             {
                 return false;
             }
-            if (Math.Abs(lastMove.FinalPosition.Rank - move.FinalPosition.Rank) == 1 && Math.Abs(lastMove.FinalPosition.Rank - move.FinalPosition.Rank) == 1)
+            if (Math.Abs(lastMove.FinalPosition.Rank - move.FinalPosition.Rank) == 1)
             {
                 return true;
             }

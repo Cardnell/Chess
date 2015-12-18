@@ -174,6 +174,42 @@ namespace EngineTests
                 PieceColour.Black));
         }
 
+        [Test]
+        public void CantTakePieceDirectlyInFrontEnpassant()
+        {
+            Init();
+
+            var newPosition = new Position(4, 4);
+            var thePiece = new Piece(PieceColour.Black, PieceType.Pawn);
+            var pawnMoveTo = new Position(_initialPosition.Rank + 2, _initialPosition.File);
+
+            _game.Board.AddPiece(thePiece, newPosition);
+
+            _game.MakeMove(_initialPosition, pawnMoveTo, PieceColour.White);
+
+            Assert.IsFalse(_game.IsMoveLegal(newPosition, new Position(_initialPosition.Rank, _initialPosition.File),
+                PieceColour.Black));
+        }
+
+
+        [Test]
+        public void CantTakePieceOnADifferentFileEnpassant()
+        {
+            Init();
+
+            var newPosition = new Position(4, 4);
+            var thePiece = new Piece(PieceColour.Black, PieceType.Pawn);
+            var pawnMoveTo = new Position(_initialPosition.Rank + 2, _initialPosition.File);
+
+            _game.Board.AddPiece(thePiece, newPosition);
+
+            _game.MakeMove(_initialPosition, pawnMoveTo, PieceColour.White);
+
+            Assert.IsFalse(_game.IsMoveLegal(newPosition, new Position(_initialPosition.Rank + 1, _initialPosition.File + 4),
+                PieceColour.Black));
+        }
+
+
 
 
         [Test]
