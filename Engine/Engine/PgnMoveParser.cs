@@ -106,7 +106,7 @@ namespace Cardnell.Chess.Engine
             IList<Move> moves,
             Func<Position, bool> condition)
         {
-            IEnumerable<Tuple<Piece, Position>> piecePositions = board.GetPieces(PieceColour.White, pieceType);
+            IEnumerable<Tuple<Piece, Position>> piecePositions = board.GetPieces(pieceColour, pieceType);
             return
                 piecePositions.First(
                     x =>

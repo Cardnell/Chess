@@ -208,7 +208,7 @@ namespace Cardnell.Chess.Engine
                     Piece piece = GetPieceAt(position);
                     if (piece != null)
                     {
-                        output.AddPiece(piece, position);
+                        output.AddPiece(piece.Copy(), position);
                     }
                 }
             }

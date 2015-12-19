@@ -5,6 +5,7 @@ using Cardnell.Chess.Engine;
 using Cardnell.Chess.Engine.Rules;
 using Moq;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 
 namespace EngineTests
 {
@@ -64,7 +65,7 @@ namespace EngineTests
                 Assert.AreEqual(1,
                     _actualPossibleMoves.Count(x => x.FinalPosition.Equals(move.FinalPosition) && x.InitialPosition.Equals(move.InitialPosition)
                             &&
-                            x.Mover == move.Mover && x.PieceMoved == move.PieceMoved));
+                            x.Mover == move.Mover));
             }
         }
 
@@ -113,11 +114,12 @@ namespace EngineTests
         public void IsInCheck()
         {
             _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("e1"));
-            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Queen), new Position("e4"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Queen), new Position("e4"));
             _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("e8"));
+        
 
-            Assert.IsTrue(_game.IsInCheck(PieceColour.White));
-            Assert.IsFalse(_game.IsInCheck(PieceColour.Black));
+            Assert.IsFalse(_game.IsInCheck(PieceColour.White));
+            Assert.IsTrue(_game.IsInCheck(PieceColour.Black));
         }
 
         [Test]
@@ -265,56 +267,66 @@ namespace EngineTests
 
             var piecesToAdd = new Dictionary<Tuple<Piece, Position>, int>
             {
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.King), new Position(0, 4)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.King), new Position(7, 4)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Rook), new Position(0, 0)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Knight), new Position(0, 1)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Bishop), new Position(0, 2)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Queen), new Position(0, 3)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Bishop), new Position(0, 5)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Knight), new Position(0, 6)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Rook), new Position(0, 7)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position(1, 0)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position(1, 1)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position(1, 2)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position(1, 3)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position(1, 4)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position(0, 5)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position(0, 6)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position(0, 7)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Rook), new Position(7, 0)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Knight), new Position(7, 1)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Bishop), new Position(7, 2)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Queen), new Position(7, 3)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Bishop), new Position(7, 5)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Knight), new Position(7, 6)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Rook), new Position(7, 7)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position(1, 0)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position(1, 1)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position(1, 2)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position(1, 3)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position(1, 4)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position(7, 5)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position(7, 6)), 1},
-                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position(7, 7)), 1}
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.King), new Position("e1")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.King), new Position("e8")), 1},
+
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Rook), new Position("a1")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Knight), new Position("b1")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Bishop), new Position("c1")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Queen), new Position("d1")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Bishop), new Position("f1")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Knight), new Position("g1")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Rook), new Position("h1")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position("a2")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position("b2")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position("c2")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position("d2")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position("e2")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position("f2")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position("g2")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.White, PieceType.Pawn), new Position("h2")), 1},
+
+                { new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Rook), new Position("a8")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Knight), new Position("b8")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Bishop), new Position("c8")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Queen), new Position("d8")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Bishop), new Position("f8")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Knight), new Position("g8")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Rook), new Position("h8")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position("a7")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position("b7")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position("c7")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position("d7")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position("e7")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position("f7")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position("g7")), 1},
+                {new Tuple<Piece, Position>(new Piece(PieceColour.Black, PieceType.Pawn), new Position("h7")), 1}
             };
 
             Dictionary<string, int> piecesComparison = piecesToAdd.Keys.ToDictionary(GetPiecePoisitionString, value => 1);
 
             var addCalls = new List<Tuple<Piece, Position>>();
-            boardMock.Setup(c => c.AddPiece(It.IsAny<Piece>(), It.IsAny<Position>()))
-                .Callback<Piece, Position>(
-                    (piece, position) => addCalls.Add(new Tuple<Piece, Position>(piece, position)));
 
-            var game = new Game(boardMock.Object, rulesEngineMock.Object, GameSetup.Classical);
 
-            Assert.AreEqual(32, addCalls.Count);
+            var game = Game.ClassicalGame();
 
-            foreach (Tuple<Piece, Position> pieces in addCalls)
+            IEnumerable<Tuple<Piece, Position>> whitePieces = game.Board.GetPieces(PieceColour.Black);
+            IEnumerable<Tuple<Piece, Position>> blackPieces = game.Board.GetPieces(PieceColour.Black);
+
+            int piecesNumber = 0;
+            foreach (Tuple<Piece, Position> pieces in whitePieces)
             {
+                piecesNumber++;
                 Assert.IsTrue(piecesComparison.ContainsKey(GetPiecePoisitionString(pieces)),
                     pieces.Item1.ToString() + pieces.Item2);
             }
+            foreach (Tuple<Piece, Position> pieces in blackPieces)
+            {
+                piecesNumber++;
+                Assert.IsTrue(piecesComparison.ContainsKey(GetPiecePoisitionString(pieces)),
+                    pieces.Item1.ToString() + pieces.Item2);
+            }
+            Assert.AreEqual(32, piecesNumber);
         }
 
         [Test]
@@ -340,5 +352,60 @@ namespace EngineTests
             _game.MakeMove(new Position("a3"), new Position("d3"), PieceColour.White);
             Assert.AreEqual(GameStatus.Drawn, _game.GameStatus);
         }
+
+        [Test]
+        public void GettingListOfMovesReturnsRightNumber()
+        {
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("a8"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Pawn), new Position("a2"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("a1"));
+
+            IList<Move> moves = _game.GetPossibleMoves();
+            Assert.AreEqual(4, moves.Count);
+        }
+
+
+        [Test]
+        public void GettingListOfMovesDoesntChangePiecePosition()
+        {
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("a8"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Pawn), new Position("a2"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("a1"));
+
+            IList<Move> moves = _game.GetPossibleMoves();
+            Assert.AreEqual(PieceType.King, _game.Board.GetPieceAt(new Position("a8")).PieceType);
+            Assert.AreEqual(PieceType.King, _game.Board.GetPieceAt(new Position("a1")).PieceType);
+            Assert.AreEqual(PieceType.Pawn, _game.Board.GetPieceAt(new Position("a2")).PieceType);
+
+        }
+
+        [Test]
+        public void GettingListOfMovesAfterMovingBlackNightDoesntThrowException()
+        {
+            Game game = Game.ClassicalGame();
+            game.MakeMove("e4", PieceColour.White);
+            game.MakeMove("Na6", PieceColour.Black);
+            Assert.DoesNotThrow(()=>game.GetPossibleMoves());
+        }
+
+        [Test]
+        public void BlackCantMoveFirst()
+        {
+            Game game = Game.ClassicalGame();
+            bool legal =
+                game.IsMoveLegal(new Move(new Position("b8"), new Position("c6"), PieceColour.Black, null, null));
+            Assert.IsFalse(legal);
+        }
+
+        [Test]
+        public void WhiteBlackCantMoveFirst()
+        {
+            Game game = Game.ClassicalGame();
+            game.MakeMove("e4", PieceColour.White);
+            bool legal =
+                game.IsMoveLegal(new Move(new Position("a2"), new Position("a3"), PieceColour.White, null, null));
+            Assert.IsFalse(legal);
+        }
+
     }
 }

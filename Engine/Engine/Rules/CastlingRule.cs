@@ -77,6 +77,10 @@ namespace Cardnell.Chess.Engine.Rules
 
         private bool PiecePositionCheck(Move move, IBoard board)
         {
+            if (!CheckMoveIsCastling(move, board))
+            {
+                return false;
+            }
             Position[] positions = _positions[move.Mover];
             if (!board.IsPieceAt(positions[KING_POSITION]))
             {
@@ -120,6 +124,12 @@ namespace Cardnell.Chess.Engine.Rules
 
             Piece queensRook = board.GetPieceAt(positions[QUEENS_ROOK_POSITION]);
             return queensRook.PieceType == PieceType.Rook && !queensRook.HasMoved;
+        }
+
+        private bool CheckMoveIsCastling(Move move, IBoard board)
+        {
+            Position[] positions = _positions[move.Mover];
+            return move.InitialPosition.Equals(positions[KING_POSITION]);
         }
     }
 }

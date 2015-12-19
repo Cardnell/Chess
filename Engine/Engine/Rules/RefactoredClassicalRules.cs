@@ -29,6 +29,8 @@ namespace Cardnell.Chess.Engine.Rules
 
         public bool IsMoveLegal(Move move, IBoard board, IList<Move> moves, bool checkContraint)
         {
+
+
             if (!board.IsPositionOnBoard(move.InitialPosition) || !board.IsPositionOnBoard(move.FinalPosition))
             {
                 return false;

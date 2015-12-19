@@ -15,6 +15,11 @@ namespace Cardnell.Chess.Engine
 
     public class Game
     {
+        public static Game ClassicalGame()
+        {
+            return new Game(new Board(), new RefactoredClassicalRules(), GameSetup.Classical);
+        }
+
         private readonly IRulesEngine _rulesEngine;
         public readonly List<Move> Moves;
         private readonly PgnMoveParser _parser;
@@ -28,6 +33,25 @@ namespace Cardnell.Chess.Engine
             GameStatus = GameStatus.InProgress;
         }
 
+        public IList<Move> GetPossibleMoves()
+        {
+            List<Move> output = new List<Move>();
+            if (Moves.Count%2 == 1)
+            {
+                IEnumerable<Tuple<Piece, Position>> pieces = Board.GetPieces(PieceColour.Black);
+                foreach (Position position in pieces.Select(x => x.Item2))
+                {
+                    output.AddRange(GetPossibleMoves(position));
+                }
+                return output;
+            }
+            IEnumerable<Tuple<Piece, Position>> whitePieces = Board.GetPieces(PieceColour.White);
+            foreach (Position position in whitePieces.Select(x => x.Item2))
+            {
+                output.AddRange(GetPossibleMoves(position));
+            }
+            return output;
+        }
 
         public Game(IBoard board, IRulesEngine rulesEngine, IEnumerable<Tuple<Piece, Position>> pieces)
             :this(board, rulesEngine)
@@ -38,13 +62,30 @@ namespace Cardnell.Chess.Engine
             }
         }
 
+        public Game(IBoard board, IRulesEngine rulesEngine, List<Move> newMoves, GameStatus status)
+        {
+            Board = board;
+            _rulesEngine = rulesEngine;
+            _parser = new PgnMoveParser(_rulesEngine);
+            Moves = newMoves;
+            GameStatus = status;
+        }
+
         public IBoard Board { get; }
         public GameStatus GameStatus { get; set; }
 
 
         public bool IsMoveLegal(Position initialPosition, Position finalPosition, PieceColour mover)
         {
-           return _rulesEngine.IsMoveLegal(new Move(initialPosition, finalPosition, mover, null, null), Board, Moves);
+            if (Moves.Count % 2 == 0 && mover == PieceColour.Black)
+            {
+                return false;
+            }
+            if (Moves.Count % 2 == 1 && mover == PieceColour.White)
+            {
+                return false;
+            }
+            return _rulesEngine.IsMoveLegal(new Move(initialPosition, finalPosition, mover, null, null), Board, Moves);
         }
 
 
@@ -80,7 +121,7 @@ namespace Cardnell.Chess.Engine
             return pieces.Any(x => GetPossibleMoves(x.Item2).Count > 0);
         }
 
-        public bool? IsMoveLegal(Move move)
+        public bool IsMoveLegal(Move move)
         {
             return IsMoveLegal(move.InitialPosition, move.FinalPosition, move.Mover);
         }
@@ -94,7 +135,7 @@ namespace Cardnell.Chess.Engine
         {
             PieceColour oppositeColour = pieceColour == PieceColour.White ? PieceColour.Black : PieceColour.White;
             Position kingPosition = Board.GetKingPosition(pieceColour);
-            return Board.GetPieces(oppositeColour).Any(x => IsMoveLegal(x.Item2, kingPosition, oppositeColour));
+            return Board.GetPieces(oppositeColour).Any(x => _rulesEngine.IsMoveLegal(new Move(x.Item2, kingPosition, oppositeColour, null, null),Board, Moves));
         }
 
         public IList<Move> GetPossibleMoves(Position piecePosition)
@@ -115,6 +156,12 @@ namespace Cardnell.Chess.Engine
         }
 
 
-
+        public Game Copy()
+        {
+            Board newBoard = Board.Copy();
+            var newMoves = new List<Move>();
+            newMoves.AddRange(Moves.Select(x=>x.Copy()).ToList());
+            return new Game(newBoard, _rulesEngine, newMoves, GameStatus);
+        }
     }
 }

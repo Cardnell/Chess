@@ -33,6 +33,11 @@ namespace Cardnell.Chess.Engine
 
         }
 
+        public Piece Copy()
+        {
+            return new Piece(Colour, PieceType) {HasMoved = HasMoved};
+        }
+
         public PieceType PieceType { get; private set; }
 
         public PieceColour Colour { get; private set; }
