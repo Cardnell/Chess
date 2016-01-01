@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Cardnell.Chess.Engine;
 using Cardnell.Chess.Engine.Rules;
 using NUnit.Framework;
@@ -25,6 +27,31 @@ namespace EngineTests
             _initialPosition = new Position(4, 5);
             _piece = new Piece(PieceColour.White, PieceType.Knight);
             _game.Board.AddPiece(_piece, _initialPosition);
+        }
+
+        [Test]
+        public void GetCorrectListOfPossibleMoves()
+        {
+            Init();
+
+            IList<Move> possibleMoves= _game.GetPossibleMoves(_initialPosition);
+
+            IList<Position> expectedFinalPositions = new List<Position>
+            {
+                new Position(_initialPosition.Rank + 1, _initialPosition.File + 2),
+                new Position(_initialPosition.Rank + 1, _initialPosition.File - 2),
+
+                new Position(_initialPosition.Rank - 1, _initialPosition.File + 2),
+                new Position(_initialPosition.Rank - 1, _initialPosition.File - 2),
+
+                new Position(_initialPosition.Rank + 2, _initialPosition.File + 1),
+                new Position(_initialPosition.Rank + 2, _initialPosition.File - 1),
+
+                new Position(_initialPosition.Rank - 2, _initialPosition.File + 1),
+                new Position(_initialPosition.Rank - 2, _initialPosition.File - 1)
+            };
+
+            CollectionAssert.AreEquivalent(expectedFinalPositions, possibleMoves.Select(x=>x.FinalPosition));
         }
 
         [Test]
@@ -122,5 +149,7 @@ namespace EngineTests
 
             Assert.IsFalse(_game.IsMoveLegal(_initialPosition, newPosition, _piece.Colour));
         }
+
+
     }
 }

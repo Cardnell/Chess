@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Cardnell.Chess.Engine;
 using Cardnell.Chess.Engine.Rules;
 using NUnit.Framework;
@@ -139,6 +141,31 @@ namespace EngineTests
 
             Assert.IsFalse(
                 _game.IsMoveLegal(new Move(new Position("e1"), new Position("d1"), PieceColour.White, null, null)));
+        }
+
+        [Test]
+        public void GetCorrectListOfPossibleMoves()
+        {
+            IList<Move> possibleMoves = _game.GetPossibleMoves(_initialPosition);
+
+            IList<Position> expectedFinalPositions = new List<Position>
+            {
+
+                new Position(1,2),
+                new Position(1, 3),
+                new Position(1, 4),
+                
+                new Position(2, 2),
+                new Position(2, 4),
+
+                new Position(3,2),
+                new Position(3, 3),
+                new Position(3, 4)
+
+
+            };
+
+            CollectionAssert.AreEquivalent(expectedFinalPositions, possibleMoves.Select(x => x.FinalPosition));
         }
 
         //[Test]

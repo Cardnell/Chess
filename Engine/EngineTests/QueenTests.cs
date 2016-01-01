@@ -29,7 +29,50 @@ namespace EngineTests
             _piece = new Piece(PieceColour.White, PieceType.Queen);
             _game.Board.AddPiece(_piece, _initialPosition);
         }
- 
+
+        [Test]
+        public void GetCorrectListOfPossibleMoves()
+        {
+            Init();
+
+            IList<Move> possibleMoves = _game.GetPossibleMoves(_initialPosition);
+
+            IList<Position> expectedFinalPositions = new List<Position>
+            {
+                new Position(2, 0),
+                new Position(2, 1),
+                new Position(2, 2),
+                new Position(2, 4),
+                new Position(2, 5),
+                new Position(2, 6),
+                new Position(2, 7),
+
+                new Position(0, 3),
+                new Position(1, 3),
+                new Position(3, 3),
+                new Position(4, 3),
+                new Position(5, 3),
+                new Position(6, 3),
+                new Position(7, 3),
+
+                new Position(0, 1),
+                new Position(1, 2),
+                new Position(3, 4),
+                new Position(4, 5),
+                new Position(5, 6),
+                new Position(6, 7),
+
+                new Position(0, 5),
+                new Position(1, 4),
+                new Position(3, 2),
+                new Position(4, 1),
+                new Position(5, 0)
+            };
+
+            CollectionAssert.AreEquivalent(expectedFinalPositions, possibleMoves.Select(x => x.FinalPosition));
+        }
+
+
         [Test]
         public void CanMoveDiagnally()
         {

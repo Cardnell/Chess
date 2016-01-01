@@ -179,5 +179,32 @@ namespace EngineTests
             Assert.IsFalse(_game.IsMoveLegal(_initialPosition, downRightMore, _piece.Colour));
         }
 
+
+        [Test]
+        public void GetCorrectListOfPossibleMoves()
+        {
+            Init();
+
+            IList<Move> possibleMoves = _game.GetPossibleMoves(_initialPosition);
+
+            IList<Position> expectedFinalPositions = new List<Position>
+            {
+                new Position(0, 1),
+                new Position(1, 2),
+                new Position(3, 4),
+                new Position(4, 5),
+                new Position(5, 6),
+                new Position(6, 7),
+                
+                new Position(0, 5),
+                new Position(1, 4),
+                new Position(3, 2),
+                new Position(4, 1),
+                new Position(5, 0)
+            };
+
+            CollectionAssert.AreEquivalent(expectedFinalPositions, possibleMoves.Select(x => x.FinalPosition));
+        }
+
     }
 }

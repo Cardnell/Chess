@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Cardnell.Chess.Engine;
 using Cardnell.Chess.Engine.Rules;
 using NUnit.Framework;
@@ -25,6 +27,35 @@ namespace EngineTests
             _initialPosition = new Position(2, 3);
             _piece = new Piece(PieceColour.White, PieceType.Rook);
             _game.Board.AddPiece(_piece, _initialPosition);
+        }
+
+        [Test]
+        public void GetCorrectListOfPossibleMoves()
+        {
+            Init();
+
+            IList<Move> possibleMoves = _game.GetPossibleMoves(_initialPosition);
+
+            IList<Position> expectedFinalPositions = new List<Position>
+            {
+                new Position(2, 0),
+                new Position(2, 1),
+                new Position(2, 2),
+                new Position(2, 4),
+                new Position(2, 5),
+                new Position(2, 6),
+                new Position(2, 7),
+
+                new Position(0, 3),
+                new Position(1, 3),
+                new Position(3, 3),
+                new Position(4, 3),
+                new Position(5, 3),
+                new Position(6, 3),
+                new Position(7, 3),
+            };
+
+            CollectionAssert.AreEquivalent(expectedFinalPositions, possibleMoves.Select(x => x.FinalPosition));
         }
 
         [Test]
