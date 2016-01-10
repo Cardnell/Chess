@@ -57,11 +57,42 @@ namespace EngineTests
         }
 
         [Test]
+        public void BlackCanMoveDiagnallyOneAndCapture()
+        {
+            Init();
+            Position blackPosition = new Position(6,1);
+
+            var upRight = new Position(blackPosition.Rank - 1, blackPosition.File + 1);
+            var upLeft = new Position(blackPosition.Rank - 1, blackPosition.File - 1);
+
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Bishop), upRight);
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Bishop), upLeft);
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Pawn), blackPosition);
+
+            _game.MakeMove(_initialPosition, new Position(_initialPosition.Rank + 1, _initialPosition.File), _piece.Colour);
+
+            Assert.IsTrue(_game.IsMoveLegal(blackPosition, upRight, PieceColour.Black));
+            Assert.IsTrue(_game.IsMoveLegal(blackPosition, upLeft, PieceColour.Black));
+        }
+
+        [Test]
         public void CanMoveOneSpaceForward()
         {
             Init();
             var upOne = new Position(_initialPosition.Rank + 1, _initialPosition.File);
             Assert.IsTrue(_game.IsMoveLegal(_initialPosition, upOne, _piece.Colour));
+        }
+
+
+        [Test]
+        public void BlackCanMoveOneSpaceForward()
+        {
+            Init();
+            Position position = new Position(6,1);
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Pawn), position);
+            _game.MakeMove(_initialPosition, new Position(_initialPosition.Rank + 1, _initialPosition.File), _piece.Colour);
+            var upOne = new Position(position.Rank - 1, position.File);
+            Assert.IsTrue(_game.IsMoveLegal(position, upOne, PieceColour.Black));
         }
 
         [Test]

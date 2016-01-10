@@ -23,6 +23,43 @@ namespace EngineTests
         }
 
         [Test]
+        public void KingSideCastleWhite()
+        {
+
+            var parser = new PgnMoveParser(new RefactoredClassicalRules());
+            Move move = parser.ParseMove("0-0", PieceColour.White, _game.Board, _game.Moves);
+            Assert.AreEqual(new Position("e1"), move.InitialPosition);
+            Assert.AreEqual(new Position("g1"), move.FinalPosition);
+        }
+        [Test]
+        public void KingSideCastleBlack()
+        {
+
+            var parser = new PgnMoveParser(new RefactoredClassicalRules());
+            Move move = parser.ParseMove("0-0", PieceColour.Black, _game.Board, _game.Moves);
+            Assert.AreEqual(new Position("e8"), move.InitialPosition);
+            Assert.AreEqual(new Position("g8"), move.FinalPosition);
+        }
+        [Test]
+        public void QueenSideCastleWhite()
+        {
+
+            var parser = new PgnMoveParser(new RefactoredClassicalRules());
+            Move move = parser.ParseMove("0-0-0", PieceColour.White, _game.Board, _game.Moves);
+            Assert.AreEqual(new Position("e1"), move.InitialPosition);
+            Assert.AreEqual(new Position("c1"), move.FinalPosition);
+        }
+        [Test]
+        public void QueenSideCastleBlack()
+        {
+
+            var parser = new PgnMoveParser(new RefactoredClassicalRules());
+            Move move = parser.ParseMove("0-0-0", PieceColour.Black, _game.Board, _game.Moves);
+            Assert.AreEqual(new Position("e8"), move.InitialPosition);
+            Assert.AreEqual(new Position("c8"), move.FinalPosition);
+        }
+
+        [Test]
         public void PawnMovesOneSpace()
         {
             var initialPosition = new Position("e2");

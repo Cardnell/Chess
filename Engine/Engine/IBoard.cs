@@ -20,5 +20,6 @@ namespace Cardnell.Chess.Engine
         IList<Position> GetPositions();
         Board Copy();
         IEnumerable<Tuple<Piece, Position>> GetPieces(PieceColour colour, PieceType pieceType);
+        void ReverseMove(Move move);
     }
 }

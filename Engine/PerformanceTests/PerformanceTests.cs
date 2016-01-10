@@ -24,21 +24,21 @@ namespace PerformanceTests
         {
             log4net.Config.XmlConfigurator.Configure();
             int numberOfLevels = 5;
-            string runType = "Single thread, no piece based 'GetMoves'";
+            string runType = "Multi thread, piece based 'GetMoves'";
             _log.Info($"Starting peformance run for {numberOfLevels} levels");
             var watch = new Stopwatch();
-            try
-            {
+            //try
+            //{
                 Game game = Game.ClassicalGame();
                 watch.Start();
                 FirstIteration(game, numberOfLevels);
                 watch.Stop();
-            }
-            catch (Exception e)
-            { 
-                watch.Stop();
-                _log.Error($"Performance run {runType} ended after {watch.Elapsed.ToString("g")} with error: {e.Message}, stacktrace: {e.StackTrace}");
-            }
+            //}
+            //catch (Exception e)
+            //{ 
+            //    watch.Stop();
+            //    _log.Error($"Performance run {runType} ended after {watch.Elapsed.ToString("g")} with error: {e.Message}, stacktrace: {e.StackTrace}");
+            //}
             _log.Info($"Performance run {runType} finished after {watch.Elapsed.ToString("g")}, total moves: {_numberOfMoves}");
         }
 
@@ -57,11 +57,11 @@ namespace PerformanceTests
             {
                 return;
             }
-            Game newGame = game.Copy();
             level++;
-            newGame.MakeMove(move);
-            IList<Move> moves = newGame.GetPossibleMoves();
-            SequentialRun(level, totalLevels, moves, newGame);
+            game.MakeMove(move);
+            IList<Move> moves = game.GetPossibleMoves();
+            SequentialRun(level, totalLevels, moves, game);
+            game.ReverseLastMove();
         }
 
         private static void SequentialRun(int level, int totalLevels, IList<Move> moves, Game newGame)

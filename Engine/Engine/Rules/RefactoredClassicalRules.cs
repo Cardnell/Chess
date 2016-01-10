@@ -7,31 +7,23 @@ namespace Cardnell.Chess.Engine.Rules
 {
     public class RefactoredClassicalRules : IRulesEngine
     {
-        IRulesEngine _simplePieceRules = new SimplePieceRules();
-        IMoveRule _castlingEngine;
-        IMoveRule _checkRulesEngine;
+        readonly IRulesEngine _simplePieceRules = new SimplePieceRules();
+        readonly IMoveLegalityRuleChecker _castlingEngine;
+        private readonly List<IMoveLegalityRuleChecker> _postPieceSpecificChecks = new List<IMoveLegalityRuleChecker>();
+        private readonly List<IMoveLegalityRuleChecker> _prePieceSpecificChecks = new List<IMoveLegalityRuleChecker>();
 
         public RefactoredClassicalRules()
         {
-            _castlingEngine = new CastlingRule(_simplePieceRules);
-            _checkRulesEngine = new CantMoveIntoCheck(_simplePieceRules);
+            _castlingEngine = new CastlingLegalityRuleChecker(_simplePieceRules);
+            _postPieceSpecificChecks.Add(new CantTakeOwnPieceLegalityRuleChecker());
+            _postPieceSpecificChecks.Add(new CantMoveLegalityIntoCheck(_simplePieceRules));
+            _prePieceSpecificChecks.Add(new PositionsInMoveLegal());
+            _prePieceSpecificChecks.Add(new PieceAtInitialLocationValid());
         }
 
         public bool IsMoveLegal(Move move, IBoard board, IList<Move> moves)
         {
-            Piece piece = board.GetPieceAt(move.InitialPosition);
-            if (piece == null)
-            {
-                return false;
-            }
-            return piece.Colour == move.Mover && IsMoveLegal(move, board, moves, true);
-        }
-
-        public bool IsMoveLegal(Move move, IBoard board, IList<Move> moves, bool checkContraint)
-        {
-
-
-            if (!board.IsPositionOnBoard(move.InitialPosition) || !board.IsPositionOnBoard(move.FinalPosition))
+            if(_prePieceSpecificChecks.Any(x=>!x.IsMoveLegal(move, board, moves)))
             {
                 return false;
             }
@@ -39,14 +31,17 @@ namespace Cardnell.Chess.Engine.Rules
             {
                 return false;
             }
-            if (!checkContraint) return true;
-            return CantMoveIntoCheck(move, board, moves);
+            return _postPieceSpecificChecks.All(x => x.IsMoveLegal(move, board, moves));
         }
 
-        private bool CantMoveIntoCheck(Move move, IBoard board, IList<Move> moves)
+        public IList<Move> GetLegalMoves(Position startingPositiong, IBoard board, IList<Move> moves)
         {
-            return _checkRulesEngine.IsMoveLegal(move, board, moves);
+            IList<Move> simplePieceMoves = _simplePieceRules.GetLegalMoves(startingPositiong, board, moves);
+            return
+                simplePieceMoves.Where(x => _postPieceSpecificChecks.All(y => y.IsMoveLegal(x, board, moves))).ToList();
         }
+
+
 
 
     }

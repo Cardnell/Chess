@@ -9,19 +9,17 @@ namespace EngineTests
     [TestFixture]
     public class CastleTests
     {
-        private IMoveRule _rulesEngine;
+        private IMoveLegalityRuleChecker _legalityRulesCheckerEngine;
         private Board _board;
 
         [SetUp]
         public void Setup()
         {
-            var engineMock = new Mock<IRulesEngine>();
             //rules enginge is used to check on checks for castling, except where testing this, we want to 
             //return false to show nothing can move to that position
-            engineMock.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), It.IsAny<IBoard>(), It.IsAny<IList<Move>>()))
-                .Returns(false);
+
             _board = new Board();
-            _rulesEngine = new CastlingRule(engineMock.Object);
+            _legalityRulesCheckerEngine = new CastlingLegalityRuleChecker(new SimplePieceRules());
             _board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("e8"));
         }
 
@@ -36,7 +34,7 @@ namespace EngineTests
         public void CantCastleIntoCheck()
         {
             var rulesEngineMock = new Mock<IRulesEngine>();
-            IMoveRule castlingRulesEngine = new CastlingRule(rulesEngineMock.Object);
+            IMoveLegalityRuleChecker castlingLegalityRulesCheckerEngine = new CastlingLegalityRuleChecker(rulesEngineMock.Object);
             var board = GetSimpleCorrectBoard();
             board.AddPiece(new Piece(PieceColour.Black, PieceType.Queen), new Position("e2"));
 
@@ -58,7 +56,7 @@ namespace EngineTests
                                 y.FinalPosition.Equals(new Position("g1"))), board, It.IsAny<IList<Move>>()))
                 .Returns(true);
             board.AddPiece(new Piece(PieceColour.Black, PieceType.Rook), new Position("g2"));
-            Assert.IsFalse(castlingRulesEngine.IsMoveLegal(new Move("0-0", PieceColour.White), board, new List<Move>()));
+            Assert.IsFalse(castlingLegalityRulesCheckerEngine.IsMoveLegal(new Move("0-0", PieceColour.White), board, new List<Move>()));
             rulesEngineMock.VerifyAll();
 
         }
@@ -68,7 +66,7 @@ namespace EngineTests
         {
             var board = GetSimpleCorrectBoard();
             board.AddPiece(new Piece(PieceColour.White, PieceType.Queen), new Position("f1"));
-            Assert.IsFalse(_rulesEngine.IsMoveLegal(new Move("0-0", PieceColour.White), board, new List<Move>()));
+            Assert.IsFalse(_legalityRulesCheckerEngine.IsMoveLegal(new Move("0-0", PieceColour.White), board, new List<Move>()));
         }
 
 
@@ -76,7 +74,7 @@ namespace EngineTests
         public void CantCastletThroughCheck()
         {
             var rulesEngineMock = new Mock<IRulesEngine>();
-            IMoveRule castlingRulesEngine = new CastlingRule(rulesEngineMock.Object);
+            IMoveLegalityRuleChecker castlingLegalityRulesCheckerEngine = new CastlingLegalityRuleChecker(rulesEngineMock.Object);
             var board = GetSimpleCorrectBoard();
             board.AddPiece(new Piece(PieceColour.Black, PieceType.Queen), new Position("e2"));
 
@@ -100,7 +98,7 @@ namespace EngineTests
                 .Returns(true);
 
             board.AddPiece(new Piece(PieceColour.Black, PieceType.Rook), new Position("f2"));
-            Assert.IsFalse(castlingRulesEngine.IsMoveLegal(new Move("0-0", PieceColour.White), board, new List<Move>()));
+            Assert.IsFalse(castlingLegalityRulesCheckerEngine.IsMoveLegal(new Move("0-0", PieceColour.White), board, new List<Move>()));
             rulesEngineMock.VerifyAll();
         }
 
@@ -108,7 +106,7 @@ namespace EngineTests
         public void CantCastleWhenInCheck()
         {
             var rulesEngineMock = new Mock<IRulesEngine>();
-            IMoveRule castlingRulesEngine = new CastlingRule(rulesEngineMock.Object);
+            IMoveLegalityRuleChecker castlingLegalityRulesCheckerEngine = new CastlingLegalityRuleChecker(rulesEngineMock.Object);
             var board = GetSimpleCorrectBoard();
             board.AddPiece(new Piece(PieceColour.Black, PieceType.Queen), new Position("e2"));
 
@@ -121,7 +119,7 @@ namespace EngineTests
                                 y.FinalPosition.Equals(new Position("e1"))), board, It.IsAny<IList<Move>>()))
                 .Returns(true);
 
-            Assert.IsFalse(castlingRulesEngine.IsMoveLegal(new Move("0-0", PieceColour.White), board, new List<Move>()));
+            Assert.IsFalse(castlingLegalityRulesCheckerEngine.IsMoveLegal(new Move("0-0", PieceColour.White), board, new List<Move>()));
             rulesEngineMock.VerifyAll();
         }
 
@@ -163,7 +161,7 @@ namespace EngineTests
 
             var rules = new Mock<IRulesEngine>();
 
-            var game = new Game(board, rules.Object);
+            var game = new Game(board, new RefactoredClassicalRules());
 
             rules.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), board, new List<Move>())).Returns(true);
 
@@ -196,8 +194,8 @@ namespace EngineTests
 
             var kingSideCastle = new Move("0-0", PieceColour.White);
 
-            Assert.IsFalse(_rulesEngine.IsMoveLegal(kingSideCastle, kingsBoard, new List<Move>()));
-            Assert.IsFalse(_rulesEngine.IsMoveLegal(kingSideCastle, rooksBoard, new List<Move>()));
+            Assert.IsFalse(_legalityRulesCheckerEngine.IsMoveLegal(kingSideCastle, kingsBoard, new List<Move>()));
+            Assert.IsFalse(_legalityRulesCheckerEngine.IsMoveLegal(kingSideCastle, rooksBoard, new List<Move>()));
         }
 
         [Test]
@@ -236,13 +234,13 @@ namespace EngineTests
             var blackKingSideCastle = new Move("0-0", PieceColour.Black);
             var blackQueenSideCastle = new Move("0-0-0", PieceColour.Black);
 
-            Assert.IsTrue(_rulesEngine.IsMoveLegal(kingSideCastle, GetSimpleCorrectBoard(), new List<Move>()),
+            Assert.IsTrue(_legalityRulesCheckerEngine.IsMoveLegal(kingSideCastle, GetSimpleCorrectBoard(), new List<Move>()),
                 "Kingside");
-            Assert.IsTrue(_rulesEngine.IsMoveLegal(queenSideCastle, queenSideBoard, new List<Move>()), "Queenside");
+            Assert.IsTrue(_legalityRulesCheckerEngine.IsMoveLegal(queenSideCastle, queenSideBoard, new List<Move>()), "Queenside");
 
-            Assert.IsTrue(_rulesEngine.IsMoveLegal(blackKingSideCastle, blackKingSideBoard, new List<Move>()),
+            Assert.IsTrue(_legalityRulesCheckerEngine.IsMoveLegal(blackKingSideCastle, blackKingSideBoard, new List<Move>()),
                 "black Kingside");
-            Assert.IsTrue(_rulesEngine.IsMoveLegal(blackQueenSideCastle, blackQueenSideBoard, new List<Move>()),
+            Assert.IsTrue(_legalityRulesCheckerEngine.IsMoveLegal(blackQueenSideCastle, blackQueenSideBoard, new List<Move>()),
                 "black Queenside");
         }
 
@@ -258,7 +256,7 @@ namespace EngineTests
 
             var rules = new Mock<IRulesEngine>();
 
-            var game = new Game(board, rules.Object);
+            var game = new Game(board, new RefactoredClassicalRules());
 
             rules.Setup(x => x.IsMoveLegal(It.IsAny<Move>(), board, new List<Move>())).Returns(true);
 
@@ -288,7 +286,7 @@ namespace EngineTests
 
             var kingSideCastle = new Move("0-0", PieceColour.Black);
 
-            Assert.IsFalse(_rulesEngine.IsMoveLegal(kingSideCastle, kingSideBoard, new List<Move>()), "Kingside");
+            Assert.IsFalse(_legalityRulesCheckerEngine.IsMoveLegal(kingSideCastle, kingSideBoard, new List<Move>()), "Kingside");
         }
 
         [Test]
@@ -313,8 +311,8 @@ namespace EngineTests
 
             var kingSideCastle = new Move("0-0", PieceColour.White);
 
-            Assert.IsFalse(_rulesEngine.IsMoveLegal(kingSideCastle, kingsBoard, new List<Move>()));
-            Assert.IsFalse(_rulesEngine.IsMoveLegal(kingSideCastle, rooksBoard, new List<Move>()));
+            Assert.IsFalse(_legalityRulesCheckerEngine.IsMoveLegal(kingSideCastle, kingsBoard, new List<Move>()));
+            Assert.IsFalse(_legalityRulesCheckerEngine.IsMoveLegal(kingSideCastle, rooksBoard, new List<Move>()));
         }
 
         [Test]
@@ -323,7 +321,7 @@ namespace EngineTests
             var board = GetSimpleCorrectBoard();
 
 
-            Assert.IsFalse(_rulesEngine.IsMoveLegal(new Move("0-0-0", PieceColour.White), board, new List<Move>()));
+            Assert.IsFalse(_legalityRulesCheckerEngine.IsMoveLegal(new Move("0-0-0", PieceColour.White), board, new List<Move>()));
         }
     }
 }

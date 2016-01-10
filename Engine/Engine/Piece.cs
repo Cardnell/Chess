@@ -43,5 +43,10 @@ namespace Cardnell.Chess.Engine
         public PieceColour Colour { get; private set; }
         public bool HasMoved { get; set; }
       //  public Position Position { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Colour} {PieceType}";
+        }
     }
 }

@@ -41,6 +41,7 @@ namespace Cardnell.Chess.Engine
         public Piece PieceMoved { get; set; }
         public PieceColour Mover { get; }
         public Piece PieceTaken { get; set; }
+        public bool Enpassant { get; set; }
 
         public Move Copy()
         {

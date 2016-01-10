@@ -41,6 +41,101 @@ namespace EngineTests
         }
 
         [Test]
+        public void MovePawnTwoReverseMove()
+        {
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("e8"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Pawn), new Position("e2"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("e1"));
+
+            _game.MakeMove("e4", PieceColour.White);
+            _game.ReverseLastMove();
+
+            Assert.AreEqual(PieceType.Pawn, _game.Board.GetPieceAt(new Position("e2")).PieceType);
+            Assert.IsNull(_game.Board.GetPieceAt(new Position("e4")));
+        }
+
+        [Test]
+        public void ReversingMoveReturnsTakenPieceToBoard()
+        {
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("d8"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Queen), new Position("e2"));
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Pawn), new Position("e4"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("e1"));
+
+            _game.MakeMove("Qxe4", PieceColour.White);
+            _game.ReverseLastMove();
+
+            Assert.AreEqual(PieceType.Pawn, _game.Board.GetPieceAt(new Position("e4")).PieceType);
+            Assert.AreEqual(PieceColour.Black, _game.Board.GetPieceAt(new Position("e4")).Colour);
+        }
+
+        [Test]
+        public void ReverseEnpassant()
+        {
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("d8"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Pawn), new Position("e2"));
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.Pawn), new Position("d4"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("e1"));
+
+            _game.MakeMove("e4", PieceColour.White);
+            _game.MakeMove("xe3", PieceColour.Black);
+            _game.ReverseLastMove();
+
+            Assert.AreEqual(PieceType.Pawn, _game.Board.GetPieceAt(new Position("e4")).PieceType);
+            Assert.AreEqual(PieceColour.White, _game.Board.GetPieceAt(new Position("e4")).Colour);
+            Assert.AreEqual(PieceType.Pawn, _game.Board.GetPieceAt(new Position("d4")).PieceType);
+            Assert.AreEqual(PieceColour.Black, _game.Board.GetPieceAt(new Position("d4")).Colour);
+            Assert.IsNull(_game.Board.GetPieceAt(new Position("e3")));
+        }
+        [Test]
+        public void ReverseCastling()
+        {
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("d8"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Rook), new Position("h1"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("e1"));
+
+            _game.MakeMove("0-0", PieceColour.White);
+            _game.ReverseLastMove();
+
+            Assert.AreEqual(PieceType.King, _game.Board.GetPieceAt(new Position("e1")).PieceType);
+            Assert.AreEqual(PieceColour.White, _game.Board.GetPieceAt(new Position("e1")).Colour);
+            Assert.AreEqual(PieceType.Rook, _game.Board.GetPieceAt(new Position("h1")).PieceType);
+            Assert.AreEqual(PieceColour.White, _game.Board.GetPieceAt(new Position("h1")).Colour);
+            Assert.IsNull(_game.Board.GetPieceAt(new Position("f1")));
+            Assert.IsNull(_game.Board.GetPieceAt(new Position("g1")));
+        }
+        [Test]
+        public void ReverseQueensideCastling()
+        {
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("d8"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Rook), new Position("a1"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("e1"));
+
+            _game.MakeMove("0-0-0", PieceColour.White);
+            _game.ReverseLastMove();
+
+            Assert.AreEqual(PieceType.King, _game.Board.GetPieceAt(new Position("e1")).PieceType);
+            Assert.AreEqual(PieceColour.White, _game.Board.GetPieceAt(new Position("e1")).Colour);
+            Assert.AreEqual(PieceType.Rook, _game.Board.GetPieceAt(new Position("a1")).PieceType);
+            Assert.AreEqual(PieceColour.White, _game.Board.GetPieceAt(new Position("a1")).Colour);
+            Assert.IsNull(_game.Board.GetPieceAt(new Position("c1")));
+            Assert.IsNull(_game.Board.GetPieceAt(new Position("d1")));
+        }
+
+        [Test]
+        public void MovePawnTwoReverseMoveRemovesFromMoveList()
+        {
+            _game.Board.AddPiece(new Piece(PieceColour.Black, PieceType.King), new Position("e8"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.Pawn), new Position("e2"));
+            _game.Board.AddPiece(new Piece(PieceColour.White, PieceType.King), new Position("e1"));
+
+            _game.MakeMove("e4", PieceColour.White);
+            _game.ReverseLastMove();
+
+            Assert.AreEqual(0, _game.Moves.Count);
+        }
+
+        [Test]
         public void GetListOfPossibleMovesForKing()
         {
             var whiteKingPosition = new Position("e1");

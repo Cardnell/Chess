@@ -140,12 +140,7 @@ namespace Cardnell.Chess.Engine
 
         public IList<Move> GetPossibleMoves(Position piecePosition)
         {
-            Piece piece = Board.GetPieceAt(piecePosition);
-            IList<Position> positions = Board.GetPositions();
-            return
-                positions.Select(position => new Move(piecePosition, position, piece.Colour, piece, null))
-                    .Where(potentialMove => _rulesEngine.IsMoveLegal(potentialMove, Board, Moves))
-                    .ToList();
+            return _rulesEngine.GetLegalMoves(piecePosition, Board, Moves);
         }
 
         public void MakeMove(string move, PieceColour pieceColour)
@@ -162,6 +157,12 @@ namespace Cardnell.Chess.Engine
             var newMoves = new List<Move>();
             newMoves.AddRange(Moves.Select(x=>x.Copy()).ToList());
             return new Game(newBoard, _rulesEngine, newMoves, GameStatus);
+        }
+
+        public void ReverseLastMove()
+        {
+            Board.ReverseMove(Moves[Moves.Count - 1]);
+            Moves.RemoveAt(Moves.Count - 1);
         }
     }
 }

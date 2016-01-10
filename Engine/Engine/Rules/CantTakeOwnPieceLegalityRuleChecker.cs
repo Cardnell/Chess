@@ -2,7 +2,7 @@
 
 namespace Cardnell.Chess.Engine.Rules
 {
-    public class CantTakeOwnPieceRule : IMoveRule
+    public class CantTakeOwnPieceLegalityRuleChecker : IMoveLegalityRuleChecker
     {
         public bool IsMoveLegal(Move move, IBoard board, IList<Move> moves)
         {

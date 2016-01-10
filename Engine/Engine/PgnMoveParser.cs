@@ -60,8 +60,13 @@ namespace Cardnell.Chess.Engine
         }
 
 
-        internal Move ParseMove(string move, PieceColour pieceColour, IBoard board, IList<Move> moves)
+        public Move ParseMove(string move, PieceColour pieceColour, IBoard board, IList<Move> moves)
         {
+            if (IsCastling(move))
+            {
+                return ParseCastling(move, pieceColour);
+            }
+
             Position finalPosition = GetPGNMoveLocation(move);
             bool isCapture = PgnMoveIsCapture(move);
             PieceType pieceType = GetPieceType(move, isCapture);
@@ -96,6 +101,19 @@ namespace Cardnell.Chess.Engine
             }
             var parsedMove = new Move(initalPostion, finalPosition, pieceColour, null, null);
             return parsedMove;
+        }
+
+        private Move ParseCastling(string move, PieceColour pieceColour)
+        {
+            int rank = pieceColour == PieceColour.White ? 0 : 7;
+            int endFile = string.Compare(move, "0-0", StringComparison.InvariantCultureIgnoreCase) == 0 ? 6 : 2;
+            return new Move(new Position(rank, 4), new Position(rank, endFile), pieceColour, null, null);
+        }
+
+        private bool IsCastling(string move)
+        {
+            return string.Compare("0-0", move, StringComparison.InvariantCultureIgnoreCase) == 0
+                   || string.Compare("0-0-0", move, StringComparison.InvariantCultureIgnoreCase) == 0;
         }
 
 

@@ -38,7 +38,8 @@ namespace Cardnell.Chess.Engine
 
         public override string ToString()
         {
-            return string.Format("[{0},{1}]", Rank + 1, File + 1);
+            string output = (char)(97 + File) + (Rank + 1).ToString();
+            return output;
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace Cardnell.Chess.Engine
@@ -65,6 +66,7 @@ namespace Cardnell.Chess.Engine
             if (IsEnpassant(move))
             {
                 Enpassant(move);
+                move.Enpassant = true;
                 return move;
             }
             Piece pieceToRemove = GetPieceAt(move.FinalPosition);
@@ -94,12 +96,12 @@ namespace Cardnell.Chess.Engine
         }
 
         private bool IsEnpassant(Move move)
-        {
+       {
             if (GetPieceAt(move.InitialPosition).PieceType != PieceType.Pawn)
             {
                 return false;
             }
-            return !IsPieceAt(move.FinalPosition);
+            return move.InitialPosition.File!=move.FinalPosition.File && !IsPieceAt(move.FinalPosition);
         }
 
         private void Castle(Move move)
@@ -218,6 +220,46 @@ namespace Cardnell.Chess.Engine
         public IEnumerable<Tuple<Piece, Position>> GetPieces(PieceColour colour, PieceType pieceType)
         {
             return GetPieceSelection(x => x.Colour == colour  && x.PieceType == pieceType);
+        }
+
+        public void ReverseMove(Move move)
+        {
+            if (move.Enpassant)
+            {
+                ReverseEnpassant(move);
+                return;
+            }
+            if (move.PieceMoved.PieceType == PieceType.King && Math.Abs(move.InitialPosition.File - move.FinalPosition.File) == 2)
+            {
+                ReverseCastling(move);
+                return;
+            }
+            _squares[move.FinalPosition.Rank, move.FinalPosition.File] = move.PieceTaken;
+            _squares[move.InitialPosition.Rank, move.InitialPosition.File] = move.PieceMoved;
+        }
+
+        private void ReverseCastling(Move move)
+        {
+            _squares[move.FinalPosition.Rank, move.FinalPosition.File] = null;
+            _squares[move.InitialPosition.Rank, move.InitialPosition.File] = move.PieceMoved;
+            if (move.FinalPosition.File == 2)
+            {
+                _squares[move.InitialPosition.Rank, 0] = _squares[move.InitialPosition.Rank, 3];
+                _squares[move.InitialPosition.Rank, 3] = null;
+                return;
+            }
+            _squares[move.InitialPosition.Rank, 7] = _squares[move.InitialPosition.Rank, 5];
+            _squares[move.InitialPosition.Rank, 5] = null;
+        }
+
+        private void ReverseEnpassant(Move move)
+        {
+            int direction = move.Mover == PieceColour.White ? -1 : 1;
+            _squares[move.FinalPosition.Rank, move.FinalPosition.File] = null;
+            _squares[move.InitialPosition.Rank, move.InitialPosition.File] = move.PieceMoved;
+
+
+            _squares[move.FinalPosition.Rank + direction, move.FinalPosition.File] = move.PieceTaken;
         }
     }
 }

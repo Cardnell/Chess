@@ -5,15 +5,15 @@ using System.Linq;
 
 namespace Cardnell.Chess.Engine.Rules
 {
-    public class CastlingRule: IMoveRule
+    public class CastlingLegalityRuleChecker: IMoveLegalityRuleChecker
     {
         readonly Dictionary<PieceColour, Position[]> _positions = new Dictionary<PieceColour, Position[]>();
-        IRulesEngine _rulesEngineForChecks;
+        readonly IRulesEngine _rulesEngineForChecks;
         const int KING_POSITION= 0;
         const int KINGS_ROOK_POSITION = 1;
         const int QUEENS_ROOK_POSITION = 2;
 
-        public CastlingRule(IRulesEngine rulesEngineForChecks)
+        public CastlingLegalityRuleChecker(IRulesEngine rulesEngineForChecks)
         {
             _rulesEngineForChecks = rulesEngineForChecks;
             _positions.Add(PieceColour.White, new Position[3]);
@@ -31,7 +31,7 @@ namespace Cardnell.Chess.Engine.Rules
 
         public bool IsMoveLegal(Move move, IBoard board, IList<Move> moves)
         {
-            if (!PiecePositionCheck(move, board))
+            if (!PiecePositionCheck(move, board ,moves))
             {
                 return false;
             }
@@ -57,14 +57,6 @@ namespace Cardnell.Chess.Engine.Rules
                 }
             }
 
-            //if (WouldBeInCheckAt(move.InitialPosition, move.Mover, board, moves))
-            //{
-            //    return false;
-            //}
-            //if (WouldBeInCheckAt(move.FinalPosition, move.Mover, board, moves))
-            //{
-            //    return false;
-            //}
             return true;
         }
 
@@ -75,7 +67,7 @@ namespace Cardnell.Chess.Engine.Rules
             return pieces.Any(piecePosition => _rulesEngineForChecks.IsMoveLegal(new Move(piecePosition.Item2, position, oppositeColour, null, null), board, moves));
         }
 
-        private bool PiecePositionCheck(Move move, IBoard board)
+        private bool PiecePositionCheck(Move move, IBoard board, IList<Move> moves)
         {
             if (!CheckMoveIsCastling(move, board))
             {
@@ -88,7 +80,7 @@ namespace Cardnell.Chess.Engine.Rules
             }
 
             Piece king = board.GetPieceAt(positions[KING_POSITION]);
-            if (king.PieceType != PieceType.King || king.HasMoved)
+            if (king.PieceType != PieceType.King || HasMoved(king, moves))
             {
                 return false;
             }
@@ -107,7 +99,7 @@ namespace Cardnell.Chess.Engine.Rules
                     }
                 }
                 Piece kingsRook = board.GetPieceAt(positions[KINGS_ROOK_POSITION]);
-                return kingsRook.PieceType == PieceType.Rook && !kingsRook.HasMoved;
+                return kingsRook.PieceType == PieceType.Rook && !HasMoved(kingsRook, moves);
             }
 
             if (!board.IsPieceAt(positions[QUEENS_ROOK_POSITION]))
@@ -123,7 +115,12 @@ namespace Cardnell.Chess.Engine.Rules
             }
 
             Piece queensRook = board.GetPieceAt(positions[QUEENS_ROOK_POSITION]);
-            return queensRook.PieceType == PieceType.Rook && !queensRook.HasMoved;
+            return queensRook.PieceType == PieceType.Rook && !HasMoved(queensRook, moves);
+        }
+
+        private static bool HasMoved(Piece piece, IList<Move> moves)
+        {
+            return moves.Any(x => x.PieceMoved == piece);
         }
 
         private bool CheckMoveIsCastling(Move move, IBoard board)
